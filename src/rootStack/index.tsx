@@ -1,11 +1,15 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import ScreenNames, { RootStackParamList } from './rootStackType';
-import ProductFilter from '../features/productFilterScreen/productFilter';
-import HomepageScreen from '../features/homepageScreen/homepage';
 import CartScreen from '../features/cartScreen/cartScreen';
 import ProductDetails from '../features/productDetailsScreen/productDetails';
+import CartButton from '../components/cartButton/cartButton';
+import ScreenNames, { RootStackParamList } from './rootStackType';
+import HomepageScreen from '../features/homepageScreen/homepage';
+import ProductFilter from '../features/productFilterScreen/productFilter';
 
+const CartHeaderButton = () => {
+  return <CartButton />;
+};
 function RootStack() {
   const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -15,17 +19,21 @@ function RootStack() {
         <Stack.Screen
           name={ScreenNames.Home}
           component={HomepageScreen}
-          options={{ title: 'Homepage' }}
+          options={{
+            title: 'Homepage',
+            headerRight: CartHeaderButton,
+          }}
         />
         <Stack.Screen
           name={ScreenNames.ProductsDetails}
           component={ProductDetails}
+          options={{
+            title: '',
+            headerBackButtonDisplayMode: 'minimal',
+            headerRight: CartHeaderButton,
+          }}
         />
-        <Stack.Screen
-          name={ScreenNames.Cart}
-          component={CartScreen}
-          options={{ title: 'Homepage' }}
-        />
+        <Stack.Screen name={ScreenNames.Cart} component={CartScreen} options={{ headerShown: false }} />
         <Stack.Screen
           name={ScreenNames.ProductsFilter}
           component={ProductFilter}

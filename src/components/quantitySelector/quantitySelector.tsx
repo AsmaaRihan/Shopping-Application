@@ -1,19 +1,19 @@
 import React from 'react';
 
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Colors from '../../theme/colors';
 
 interface Props {
   quantity: number;
-  max: number;
+  min?: number;
+  max?: number;
   onChange: (quantity: number) => void;
 }
 
-export default function QuantitySelector({ quantity, max, onChange }: Props) {
+export default function QuantitySelector({ quantity, min = 1, max, onChange }: Props) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        disabled={quantity <= 1}
+        disabled={quantity <= min}
         onPress={() => onChange(quantity - 1)}
         style={styles.button}
       >
@@ -23,7 +23,7 @@ export default function QuantitySelector({ quantity, max, onChange }: Props) {
       <Text style={styles.quantity}>{quantity}</Text>
 
       <TouchableOpacity
-        disabled={quantity >= max}
+        disabled={max !== undefined && quantity >= max}
         onPress={() => onChange(quantity + 1)}
         style={styles.button}
       >
@@ -37,22 +37,22 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 18,
-    paddingBottom: 20,
+    marginVertical: 10,
   },
   button: {
-    width: 38,
-    height: 38,
-    backgroundColor: Colors.grey,
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: '#F0F0F2',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
   },
   buttonText: {
-    fontSize: 22,
+    fontSize: 18,
+    color: '#222',
   },
   quantity: {
-    fontSize: 17,
+    marginHorizontal: 13,
     fontWeight: '600',
   },
 });

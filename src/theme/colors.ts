@@ -9,6 +9,7 @@ const Colors = {
   textTeritary: '#FFFFFF',
   border: '#E5E5E5',
   error: '#FF3B30',
+  notification_red: '#FF4757',
   success: '#207a2fff',
   black: '#000000',
   grey: '#f1f1f1',

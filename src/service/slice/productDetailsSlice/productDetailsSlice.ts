@@ -17,18 +17,19 @@ const ProductDetailsSlice = createSlice({
   name: 'ProductsDetails',
   initialState,
   reducers: {},
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     //Products Details
-    builder.addCase(getProductDetails.pending, state => {
+    builder.addCase(getProductDetails.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(getProductDetails.rejected, state => {
+    builder.addCase(getProductDetails.rejected, (state) => {
       state.isError = true;
       state.isLoading = false;
     });
     builder.addCase(getProductDetails.fulfilled, (state, action) => {
       state.productDetails = action.payload;
       state.isLoading = false;
+      state.isError = false;
     });
   },
 });

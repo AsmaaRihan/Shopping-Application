@@ -1,23 +1,10 @@
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  getProductsCategories,
-  getSortedProducts,
-} from '../../service/actions/productsAction';
+import { getProductsCategories, getSortedProducts } from '../../service/actions/productsAction';
 import type { AppDispatch, RootState } from '../../store/store';
 import Colors from '../../theme/colors';
-import {
-  filterByCategory,
-  resetFilter,
-} from '../../service/slice/productSlice/productsSlice';
+import { filterByCategory, resetFilter } from '../../service/slice/productSlice/productsSlice';
 import { useNavigation } from '@react-navigation/native';
 import RadioButtons from '../../components/radioButton/radioButton';
 import { FilterOptions, sortMap, sortOptions } from './filters.types';
@@ -111,18 +98,10 @@ const ProductFilter = () => {
       <ScrollView style={styles.filterContainer}>
         {renderOptionView()}
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.buttonStyle, styles.resetButton]}
-            onPress={onSelectResetFilter}
-          >
-            <Text style={[styles.buttonText, styles.resetbuttonText]}>
-              Reset
-            </Text>
+          <TouchableOpacity style={[styles.buttonStyle, styles.resetButton]} onPress={onSelectResetFilter}>
+            <Text style={[styles.buttonText, styles.resetbuttonText]}>Reset</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.buttonStyle}
-            onPress={onSelectApplyFilter}
-          >
+          <TouchableOpacity style={styles.buttonStyle} onPress={onSelectApplyFilter}>
             <Text style={styles.buttonText}>Apply Filter</Text>
           </TouchableOpacity>
         </View>
@@ -147,11 +126,6 @@ const styles = StyleSheet.create({
   filterText: {
     fontSize: 22,
     fontWeight: '600',
-  },
-  subTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.primary,
   },
   buttonContainer: { flexDirection: 'row', justifyContent: 'space-between' },
   buttonStyle: {
