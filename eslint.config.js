@@ -30,6 +30,12 @@ module.exports = defineConfig([
           ignoreRestSiblings: false,
         },
       ],
+      'padding-line-between-statements': [
+        'error',
+        { blankLine: 'always', prev: '*', next: 'return' },
+        { blankLine: 'always', prev: '*', next: 'const' },
+        { blankLine: 'always', prev: '*', next: 'let' },
+      ],
     },
   },
   {
