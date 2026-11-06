@@ -10,6 +10,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { store } from './src/store/store';
 import RootStack from './src/rootStack';
+import './src/i18n';
 
 function App() {
   if (__DEV__) {

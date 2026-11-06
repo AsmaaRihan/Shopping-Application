@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Colors from '../../theme/colors';
 
 interface Props {
   quantity: number;
@@ -43,13 +44,13 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 8,
-    backgroundColor: '#F0F0F2',
+    backgroundColor: Colors.grey,
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
     fontSize: 18,
-    color: '#222',
+    color: Colors.text,
   },
   quantity: {
     marginHorizontal: 13,

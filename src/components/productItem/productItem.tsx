@@ -1,5 +1,6 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ProductItem } from '../../service/slice/productSlice/product.types';
+import Colors from '../../theme/colors';
 
 const ProductListItem = ({
   item,
@@ -27,8 +28,8 @@ export default ProductListItem;
 
 const styles = StyleSheet.create({
   cardView: {
-    backgroundColor: 'white',
-    shadowColor: 'grey',
+    backgroundColor: Colors.background,
+    shadowColor: Colors.textSecondary,
     padding: 20,
     flex: 1,
     margin: 5,

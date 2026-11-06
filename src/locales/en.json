@@ -1,0 +1,56 @@
+{
+  "common": {
+    "tryAgain": "Try again",
+    "reset": "Reset",
+    "applyFilter": "Apply Filter",
+    "category": "Category",
+    "sortBy": "Sort by"
+  },
+  "home": {
+    "title": "Homepage",
+    "searchProducts": "Search products...",
+    "filter": "Filter"
+  },
+  "cart": {
+    "title": "My Cart",
+    "emptyTitle": "Your cart is empty",
+    "emptyDescription": "Add some products to get started.",
+    "orderSummary": "Order Summary",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "free": "FREE",
+    "total": "Total",
+    "deliveryMessage": "Free delivery on orders over €100",
+    "totalAmount": "Total Amount",
+    "checkout": "Checkout →",
+    "checkoutTitle": "Checkout",
+    "checkoutMessage": "Proceeding to checkout!",
+    "updateErrorTitle": "Unable to update cart",
+    "updateErrorMessage": "Please try again."
+  },
+  "product": {
+    "outOfStock": "Out of stock",
+    "outOfStockMessage": "Please select another option.",
+    "loadError": "Unable to load product.",
+    "selectSizeColor": "Select size and color",
+    "quantity": "Quantity",
+    "addToCart": "Add to Cart"
+  },
+  "cartModal": {
+    "title": "Added to cart",
+    "message": "Would you like to resume shopping or continue to checkout?",
+    "viewCart": "View Cart",
+    "continueShopping": "Continue shopping"
+  },
+  "filter": {
+    "title": "Filter Products"
+  },
+  "noResults": {
+    "title": "No products found",
+    "description": "We couldn't find any products matching your search. Try a different keyword or adjust your filters.",
+    "reset": "Reset Your Filter"
+  },
+  "errors": {
+    "unauthorized": "Unauthorized! Please log in again."
+  }
+}

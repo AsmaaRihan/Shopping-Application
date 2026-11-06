@@ -3,15 +3,17 @@ import Colors from '../../theme/colors';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ScreenNames, { type RootStackParamList } from '../../rootStack/rootStackType';
+import { useTranslation } from 'react-i18next';
 
 const AddToCartModal = ({ toggleModal, isVisible }: { isVisible: boolean; toggleModal: () => void }) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { t } = useTranslation();
   return (
     <Modal visible={isVisible} transparent animationType="fade" onRequestClose={toggleModal}>
       <View style={styles.overlay}>
         <View style={styles.dialog}>
-          <Text style={styles.dialogTitle}>Added to cart</Text>
-          <Text style={styles.dialogText}>Would you like to resume shopping or continue to checkout?</Text>
+          <Text style={styles.dialogTitle}>{t('cartModal.title')}</Text>
+          <Text style={styles.dialogText}>{t('cartModal.message')}</Text>
 
           <TouchableOpacity
             style={styles.checkoutButton}
@@ -21,11 +23,11 @@ const AddToCartModal = ({ toggleModal, isVisible }: { isVisible: boolean; toggle
               toggleModal();
             }}
           >
-            <Text style={styles.checkoutButtonText}>View Cart</Text>
+            <Text style={styles.checkoutButtonText}>{t('cartModal.viewCart')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.resumeButton} onPress={toggleModal}>
-            <Text style={styles.resumeButtonText}>Continue shopping</Text>
+            <Text style={styles.resumeButtonText}>{t('cartModal.continueShopping')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -38,28 +40,28 @@ export default AddToCartModal;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: Colors.overlay,
     justifyContent: 'center',
     padding: 24,
   },
   dialog: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.background,
     borderRadius: 16,
     padding: 24,
   },
   dialogTitle: {
-    color: '#222',
+    color: Colors.text,
     fontSize: 20,
     fontWeight: '700',
   },
   dialogText: {
-    color: '#666',
+    color: Colors.textSecondary,
     fontSize: 15,
     lineHeight: 22,
     marginTop: 10,
   },
   checkoutButton: {
-    backgroundColor: Colors.black,
+    backgroundColor: Colors.primary,
     borderRadius: 10,
     marginTop: 22,
     padding: 14,
@@ -74,7 +76,7 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   resumeButtonText: {
-    color: '#555',
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
 });

@@ -8,6 +8,7 @@ import Loader from '../../components/loader/loader';
 import Colors from '../../theme/colors';
 import { addToCart, updateCart } from '../../service/actions/cartActions';
 import AddToCartModal from '../../components/addToCartModel/addToCartModal';
+import { useTranslation } from 'react-i18next';
 
 type ProductDetailsProps = {
   route: {
@@ -20,6 +21,7 @@ type ProductDetailsProps = {
 const ProductDetails = ({ route }: ProductDetailsProps) => {
   const { productId } = route.params;
   const dispatch = useDispatch<AppDispatch>();
+  const { t } = useTranslation();
   const productData = useSelector((state: RootState) => state.productDetails);
   const shoppingCart = useSelector((state: RootState) => state.cart.shoppingCart);
   const isCartLoading = useSelector((state: RootState) => state.cart.isLoading);
@@ -46,7 +48,7 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
     }
 
     if (availableStock < 1 || quantity > availableStock) {
-      Alert.alert('Out of stock', 'Please select another option.');
+      Alert.alert(t('product.outOfStock'), t('product.outOfStockMessage'));
       return;
     }
     const cartProducts = shoppingCart?.products ?? [];
@@ -65,7 +67,7 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
       }
       setShowCartActions(true);
     } catch {
-      Alert.alert('Unable to update cart', 'Please try again.');
+      Alert.alert(t('cart.updateErrorTitle'), t('cart.updateErrorMessage'));
     }
   };
 
@@ -77,9 +79,9 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
   if (isError || !product) {
     return (
       <View style={styles.center}>
-        <Text>Unable to load product.</Text>
+        <Text>{t('product.loadError')}</Text>
         <TouchableOpacity onPress={() => fetchProductDetails()}>
-          <Text>Try again</Text>
+          <Text>{t('common.tryAgain')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -99,14 +101,16 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
 
           <Text style={styles.description}>{product.description}</Text>
 
-          <Text style={styles.sectionTitle}>Select size and color</Text>
+          <Text style={styles.sectionTitle}>{t('product.selectSizeColor')}</Text>
 
-          <Text style={styles.sectionTitle}>Quantity</Text>
+          <Text style={styles.sectionTitle}>{t('product.quantity')}</Text>
 
           <QuantitySelector quantity={quantity} max={availableStock} onChange={setQuantity} />
 
           <TouchableOpacity style={styles.addButton} onPress={handleAddToCart} disabled={availableStock <= 0}>
-            <Text style={styles.addButtonText}>{availableStock <= 0 ? 'Out of stock' : 'Add to Cart'}</Text>
+            <Text style={styles.addButtonText}>
+              {availableStock <= 0 ? t('product.outOfStock') : t('product.addToCart')}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -124,7 +128,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.background,
   },
   center: {
     flex: 1,
@@ -134,7 +138,7 @@ const styles = StyleSheet.create({
   image: {
     height: 300,
     width: '100%',
-    backgroundColor: '#f7f7f7',
+    backgroundColor: Colors.surface,
   },
   content: {
     padding: 20,
@@ -145,7 +149,7 @@ const styles = StyleSheet.create({
   },
   rating: {
     marginTop: 10,
-    color: '#777',
+    color: Colors.textSecondary,
   },
   price: {
     fontSize: 26,
@@ -155,11 +159,11 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 15,
     lineHeight: 23,
-    color: '#555',
+    color: Colors.textSecondary,
   },
 
   addButton: {
-    backgroundColor: Colors.black,
+    backgroundColor: Colors.primary,
     padding: 16,
     borderRadius: 10,
     alignItems: 'center',

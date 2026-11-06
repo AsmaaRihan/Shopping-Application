@@ -13,6 +13,7 @@ const Colors = {
   success: '#207a2fff',
   black: '#000000',
   grey: '#f1f1f1',
+  overlay: 'rgba(0, 0, 0, 0.45)',
 };
 
 export default Colors;

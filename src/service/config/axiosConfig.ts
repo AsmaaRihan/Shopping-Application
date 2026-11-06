@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Alert } from 'react-native';
+import i18n from '../../i18n';
 import config from '.';
 
 const instance = axios.create({
@@ -12,7 +13,7 @@ const instance = axios.create({
 
 instance.interceptors.response.use(undefined, async error => {
   if (error.response.status === 401) {
-    Alert.alert('Unauthorized! Please log in again.');
+    Alert.alert(i18n.t('errors.unauthorized'));
   } else if (error.response.status === 404) {
     console.error('Resource not found:', error.config.url);
   } else if (error.response?.status === 500) {

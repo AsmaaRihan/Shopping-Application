@@ -9,10 +9,12 @@ import { useNavigation } from '@react-navigation/native';
 import RadioButtons from '../../components/radioButton/radioButton';
 import { FilterOptions, sortMap, sortOptions } from './filters.types';
 import Loader from '../../components/loader/loader';
+import { useTranslation } from 'react-i18next';
 
 const ProductFilter = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
+  const { t } = useTranslation();
 
   const categories = useSelector((state: RootState) => state.products);
 
@@ -84,25 +86,28 @@ const ProductFilter = () => {
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Text style={styles.filterText}> Filter Products</Text>
+        <Text style={styles.filterText}>{t('filter.title')}</Text>
       </View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.buttonStyle} onPress={onSelectCategory}>
-          <Text style={styles.buttonText}>Category</Text>
+          <Text style={styles.buttonText}>{t('common.category')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttonStyle} onPress={onSelectSortBy}>
-          <Text style={styles.buttonText}>Sort by </Text>
+          <Text style={styles.buttonText}>{t('common.sortBy')}</Text>
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.filterContainer}>
         {renderOptionView()}
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={[styles.buttonStyle, styles.resetButton]} onPress={onSelectResetFilter}>
-            <Text style={[styles.buttonText, styles.resetbuttonText]}>Reset</Text>
+            <Text style={[styles.buttonText, styles.resetbuttonText]}>{t('common.reset')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonStyle} onPress={onSelectApplyFilter}>
-            <Text style={styles.buttonText}>Apply Filter</Text>
+          <TouchableOpacity
+            style={[styles.buttonStyle, styles.primaryButton]}
+            onPress={onSelectApplyFilter}
+          >
+            <Text style={[styles.buttonText, styles.primaryButtonText]}>{t('common.applyFilter')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -114,6 +119,8 @@ export default ProductFilter;
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: Colors.background,
     paddingHorizontal: 20,
     paddingTop: 20,
   },
@@ -122,8 +129,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  filterContainer: { margin: 10 },
+  filterContainer: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    margin: 10,
+    padding: 8,
+  },
   filterText: {
+    color: Colors.text,
     fontSize: 22,
     fontWeight: '600',
   },
@@ -131,15 +144,21 @@ const styles = StyleSheet.create({
   buttonStyle: {
     margin: 5,
     padding: 15,
-    backgroundColor: Colors.textSecondary,
+    backgroundColor: Colors.surface,
+    borderColor: Colors.border,
+    borderWidth: 1,
     flex: 1,
     borderRadius: 10,
   },
   buttonText: {
+    color: Colors.text,
+    fontWeight: '600',
     textAlign: 'center',
   },
   resetbuttonText: {
     color: Colors.textTeritary,
   },
   resetButton: { backgroundColor: Colors.black },
+  primaryButton: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  primaryButtonText: { color: Colors.textTeritary },
 });

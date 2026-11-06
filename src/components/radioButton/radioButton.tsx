@@ -33,13 +33,14 @@ const RadioButtons = ({
 export default RadioButtons;
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    width: '100%',
   },
   option: {
-    width: '50%',
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 48,
+    paddingHorizontal: 8,
     paddingVertical: 10,
   },
   radio: {
@@ -58,6 +59,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.textSecondary,
   },
   label: {
+    flex: 1,
     marginLeft: 8,
     fontSize: 16,
     color: Colors.text,

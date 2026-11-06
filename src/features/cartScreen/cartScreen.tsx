@@ -16,10 +16,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateCart } from '../../service/actions/cartActions';
 import { formatShoppingCart } from './utils';
 import QuantitySelector from '../../components/quantitySelector/quantitySelector';
+import { useTranslation } from 'react-i18next';
 
 const CartScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
+  const { t } = useTranslation();
 
   const shoppingCart = useSelector((state: RootState) => state.cart.shoppingCart);
 
@@ -36,7 +38,7 @@ const CartScreen = () => {
         updateCart(nextItems.map((item) => ({ id: item.id, quantity: item.quantity }))),
       ).unwrap();
     } catch {
-      Alert.alert('Unable to update cart', 'Please try again.');
+      Alert.alert(t('cart.updateErrorTitle'), t('cart.updateErrorMessage'));
     } finally {
       setIsUpdating(false);
     }
@@ -75,7 +77,7 @@ const CartScreen = () => {
         <TouchableOpacity onPress={onBack} disabled={isUpdating}>
           <Text style={styles.back}>‹</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Cart</Text>
+        <Text style={styles.headerTitle}>{t('cart.title')}</Text>
         <Text style={styles.count}>{items.length} items</Text>
       </View>
 
@@ -83,8 +85,8 @@ const CartScreen = () => {
         {items.length === 0 ? (
           <View style={styles.empty}>
             <Text style={styles.emptyIcon}>🛒</Text>
-            <Text style={styles.emptyTitle}>Your cart is empty</Text>
-            <Text style={styles.muted}>Add some products to get started.</Text>
+            <Text style={styles.emptyTitle}>{t('cart.emptyTitle')}</Text>
+            <Text style={styles.muted}>{t('cart.emptyDescription')}</Text>
           </View>
         ) : (
           items.map((item) => (
@@ -111,44 +113,44 @@ const CartScreen = () => {
         )}
 
         <View style={styles.summary}>
-          <Text style={styles.sectionTitle}>Order Summary</Text>
+          <Text style={styles.sectionTitle}>{t('cart.orderSummary')}</Text>
 
           <View style={styles.summaryRow}>
-            <Text style={styles.muted}>Subtotal</Text>
+            <Text style={styles.muted}>{t('cart.subtotal')}</Text>
             <Text style={styles.summaryValue}>{formatPrice(subtotal)}</Text>
           </View>
 
           <View style={styles.summaryRow}>
-            <Text style={styles.muted}>Shipping</Text>
-            <Text style={styles.free}>{shipping === 0 ? 'FREE' : formatPrice(shipping)}</Text>
+            <Text style={styles.muted}>{t('cart.shipping')}</Text>
+            <Text style={styles.free}>{shipping === 0 ? t('cart.free') : formatPrice(shipping)}</Text>
           </View>
 
           <View style={styles.divider} />
 
           <View style={styles.summaryRow}>
-            <Text style={styles.totalLabel}>Total</Text>
+            <Text style={styles.totalLabel}>{t('cart.total')}</Text>
             <Text style={styles.totalPrice}>{formatPrice(total)}</Text>
           </View>
         </View>
 
         <View style={styles.delivery}>
           <Text style={styles.deliveryIcon}>🚚</Text>
-          <Text style={styles.deliveryText}>Free delivery on orders over €100</Text>
+          <Text style={styles.deliveryText}>{t('cart.deliveryMessage')}</Text>
         </View>
       </ScrollView>
 
       <View style={styles.footer}>
         <View>
-          <Text style={styles.footerLabel}>Total Amount</Text>
+          <Text style={styles.footerLabel}>{t('cart.totalAmount')}</Text>
           <Text style={styles.footerPrice}>{formatPrice(total)}</Text>
         </View>
 
         <TouchableOpacity
           style={[styles.checkoutButton, items.length === 0 && styles.disabledButton]}
           disabled={items.length === 0}
-          onPress={() => Alert.alert('Checkout', 'Proceeding to checkout!')}
+          onPress={() => Alert.alert(t('cart.checkoutTitle'), t('cart.checkoutMessage'))}
         >
-          <Text style={styles.checkoutText}>Checkout →</Text>
+          <Text style={styles.checkoutText}>{t('cart.checkout')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -175,11 +177,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#222',
+    color: Colors.text,
   },
   count: {
     fontSize: 13,
-    color: '#777',
+    color: Colors.textSecondary,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -187,7 +189,7 @@ const styles = StyleSheet.create({
   },
   product: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background,
     borderRadius: 16,
     padding: 12,
     marginBottom: 14,
@@ -197,7 +199,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 110,
     borderRadius: 12,
-    backgroundColor: '#EEE',
+    backgroundColor: Colors.border,
   },
   productInfo: {
     flex: 1,
@@ -206,10 +208,10 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#222',
+    color: Colors.text,
   },
   variant: {
-    color: '#888',
+    color: Colors.textSecondary,
     fontSize: 12,
     marginTop: 5,
   },
@@ -217,18 +219,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     marginTop: 9,
-    color: '#222',
+    color: Colors.text,
   },
   deleteButton: {
     alignSelf: 'flex-start',
     padding: 5,
   },
   deleteText: {
-    color: '#999',
+    color: Colors.textSecondary,
     fontSize: 17,
   },
   summary: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.background,
     borderRadius: 16,
     padding: 18,
     marginTop: 8,
@@ -237,7 +239,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
     marginBottom: 18,
-    color: '#222',
+    color: Colors.text,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -245,20 +247,20 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   muted: {
-    color: '#888',
+    color: Colors.textSecondary,
     fontSize: 14,
   },
   summaryValue: {
-    color: '#222',
+    color: Colors.text,
     fontWeight: '600',
   },
   free: {
-    color: '#20A56B',
+    color: Colors.success,
     fontWeight: '700',
   },
   divider: {
     height: 1,
-    backgroundColor: '#EEE',
+    backgroundColor: Colors.border,
     marginVertical: 8,
   },
   totalLabel: {
@@ -268,12 +270,12 @@ const styles = StyleSheet.create({
   totalPrice: {
     fontSize: 19,
     fontWeight: '800',
-    color: '#222',
+    color: Colors.text,
   },
   delivery: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EAF8F0',
+    backgroundColor: Colors.surface,
     padding: 14,
     borderRadius: 12,
     marginTop: 16,
@@ -283,39 +285,39 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   deliveryText: {
-    color: '#23875A',
+    color: Colors.success,
     fontSize: 13,
     fontWeight: '600',
   },
   footer: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.background,
     paddingHorizontal: 20,
     paddingVertical: 16,
     paddingBottom: 24,
     borderTopWidth: 1,
-    borderTopColor: '#EEE',
+    borderTopColor: Colors.border,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   footerLabel: {
-    color: '#888',
+    color: Colors.textSecondary,
     fontSize: 12,
   },
   footerPrice: {
     fontSize: 21,
     fontWeight: '800',
     marginTop: 4,
-    color: '#222',
+    color: Colors.text,
   },
   checkoutButton: {
-    backgroundColor: '#242424',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 28,
     paddingVertical: 17,
     borderRadius: 12,
   },
   checkoutText: {
-    color: '#FFF',
+    color: Colors.textTeritary,
     fontSize: 14,
     fontWeight: '700',
   },

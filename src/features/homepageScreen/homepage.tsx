@@ -11,10 +11,12 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ScreenNames, { type RootStackParamList } from '../../rootStack/rootStackType';
 import NoResultFound from '../../components/NoResultFound/noResultFound';
 import { getCart } from '../../service/actions/cartActions';
+import { useTranslation } from 'react-i18next';
 
 const HomepageScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useDispatch<AppDispatch>();
+  const { t } = useTranslation();
   const products = useSelector((state: RootState) => state.products);
 
   const [query, setQuery] = useState('');
@@ -75,7 +77,7 @@ const HomepageScreen = () => {
         <View style={styles.filterMenuContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search products..."
+            placeholder={t('home.searchProducts')}
             placeholderTextColor={Colors.textSecondary}
             value={query}
             onChangeText={handleChange}
@@ -85,7 +87,7 @@ const HomepageScreen = () => {
             style={styles.filterButton}
             onPress={() => navigation.navigate(ScreenNames.ProductsFilter)}
           >
-            <Text style={styles.filterText}> Filter</Text>
+            <Text style={styles.filterText}> {t('home.filter')}</Text>
           </TouchableOpacity>
         </View>
       </View>
