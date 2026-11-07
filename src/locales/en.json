@@ -34,7 +34,8 @@
     "loadError": "Unable to load product.",
     "selectSizeColor": "Select size and color",
     "quantity": "Quantity",
-    "addToCart": "Add to Cart"
+    "addToCart": "Add to Cart",
+    "addToCartError": "Couldn't add this item to the cart. Please try again."
   },
   "cartModal": {
     "title": "Added to cart",

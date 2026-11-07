@@ -4,6 +4,7 @@ import Colors from '../../theme/colors';
 const Loader = () => {
   return (
     <ActivityIndicator
+      testID="loader"
       color={Colors.primary}
       style={styles.loadingContainer}
       size="large"

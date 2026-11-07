@@ -13,13 +13,17 @@ import { useTranslation } from 'react-i18next';
 
 const ProductFilter = () => {
   const navigation = useNavigation();
+
   const dispatch = useDispatch<AppDispatch>();
+
   const { t } = useTranslation();
 
   const categories = useSelector((state: RootState) => state.products);
 
   const [selectedCategory, setSelectedCategory] = useState(categories.category);
+
   const [selectedSortBy, setSelectedSortBy] = useState('');
+
   const [activeTab, setActiveTab] = useState<FilterOptions>('category');
 
   useEffect(() => {
@@ -90,10 +94,18 @@ const ProductFilter = () => {
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.buttonStyle} onPress={onSelectCategory}>
+        <TouchableOpacity
+          testID="select_category_filter_button"
+          style={styles.buttonStyle}
+          onPress={onSelectCategory}
+        >
           <Text style={styles.buttonText}>{t('common.category')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonStyle} onPress={onSelectSortBy}>
+        <TouchableOpacity
+          testID="select_sort_filter_button"
+          style={styles.buttonStyle}
+          onPress={onSelectSortBy}
+        >
           <Text style={styles.buttonText}>{t('common.sortBy')}</Text>
         </TouchableOpacity>
       </View>
@@ -104,6 +116,7 @@ const ProductFilter = () => {
             <Text style={[styles.buttonText, styles.resetbuttonText]}>{t('common.reset')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            testID="apply_filter_button"
             style={[styles.buttonStyle, styles.primaryButton]}
             onPress={onSelectApplyFilter}
           >

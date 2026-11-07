@@ -22,6 +22,7 @@ const CartSlice = createSlice({
     //get cart
     builder.addCase(getCart.pending, (state) => {
       state.isLoading = true;
+      state.isError = false;
     });
     builder.addCase(getCart.rejected, (state) => {
       state.isError = true;
@@ -35,6 +36,7 @@ const CartSlice = createSlice({
     //Add To Cart
     builder.addCase(addToCart.pending, (state) => {
       state.isLoading = true;
+      state.isError = false;
     });
     builder.addCase(addToCart.rejected, (state) => {
       state.isError = true;
@@ -48,6 +50,7 @@ const CartSlice = createSlice({
     //Update Cart
     builder.addCase(updateCart.pending, (state) => {
       state.isLoading = true;
+      state.isError = false;
     });
     builder.addCase(updateCart.rejected, (state) => {
       state.isError = true;

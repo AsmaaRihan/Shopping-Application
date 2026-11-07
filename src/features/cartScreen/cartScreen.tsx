@@ -16,40 +16,43 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateCart } from '../../service/actions/cartActions';
 import { formatShoppingCart } from './utils';
 import QuantitySelector from '../../components/quantitySelector/quantitySelector';
+import ErrorCard from '../../components/errorCard/errorCard';
 import { useTranslation } from 'react-i18next';
 
 const CartScreen = () => {
   const navigation = useNavigation();
+
   const dispatch = useDispatch<AppDispatch>();
+
   const { t } = useTranslation();
 
   const shoppingCart = useSelector((state: RootState) => state.cart.shoppingCart);
 
+  const isCartError = useSelector((state: RootState) => state.cart.isError);
+
   const fromatedShoppingItems = shoppingCart ? formatShoppingCart(shoppingCart) : [];
+
   const [items, setItems] = useState(fromatedShoppingItems);
+
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const syncCart = async (nextItems: typeof items) => {
-    setItems(nextItems);
+  const syncCart = async (newItems: typeof items) => {
+    setItems(newItems);
     setIsUpdating(true);
 
-    try {
-      await dispatch(
-        updateCart(nextItems.map((item) => ({ id: item.id, quantity: item.quantity }))),
-      ).unwrap();
-    } catch {
-      Alert.alert(t('cart.updateErrorTitle'), t('cart.updateErrorMessage'));
-    } finally {
-      setIsUpdating(false);
-    }
+    const updatedProducts = newItems.map((item) => ({ id: item.id, quantity: item.quantity }));
+
+    await dispatch(updateCart(updatedProducts));
+
+    setIsUpdating(false);
   };
 
   const updateQuantity = (id: number, amount: number) => {
-    const nextItems = items
+    const newItems = items
       .map((item) => (item.id === id ? { ...item, quantity: item.quantity + amount } : item))
       .filter((item) => item.quantity > 0);
 
-    syncCart(nextItems);
+    syncCart(newItems);
   };
 
   const removeItem = (id: number) => {
@@ -59,6 +62,7 @@ const CartScreen = () => {
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const shipping = subtotal === 0 || subtotal >= 100 ? 0 : 5.99;
+
   const total = subtotal + shipping;
 
   const formatPrice = (price: number) => `€${price.toFixed(2)}`;
@@ -74,7 +78,7 @@ const CartScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} disabled={isUpdating}>
+        <TouchableOpacity testID="cart-back-button" onPress={onBack} disabled={isUpdating}>
           <Text style={styles.back}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('cart.title')}</Text>
@@ -82,6 +86,14 @@ const CartScreen = () => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {isCartError ? (
+          <ErrorCard
+            errorText={t('cart.updateErrorMessage')}
+            buttonText={t('common.tryAgain')}
+            refetch={() => syncCart(items)}
+          />
+        ) : null}
+
         {items.length === 0 ? (
           <View style={styles.empty}>
             <Text style={styles.emptyIcon}>🛒</Text>
@@ -105,7 +117,11 @@ const CartScreen = () => {
                 />
               </View>
 
-              <TouchableOpacity onPress={() => removeItem(item.id)} style={styles.deleteButton}>
+              <TouchableOpacity
+                testID={`remove-cart-item-${item.id}`}
+                onPress={() => removeItem(item.id)}
+                style={styles.deleteButton}
+              >
                 <Text style={styles.deleteText}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -146,6 +162,7 @@ const CartScreen = () => {
         </View>
 
         <TouchableOpacity
+          testID="cart-checkout-button"
           style={[styles.checkoutButton, items.length === 0 && styles.disabledButton]}
           disabled={items.length === 0}
           onPress={() => Alert.alert(t('cart.checkoutTitle'), t('cart.checkoutMessage'))}
@@ -158,6 +175,7 @@ const CartScreen = () => {
 };
 
 export default CartScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

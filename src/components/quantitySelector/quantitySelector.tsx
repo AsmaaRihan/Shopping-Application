@@ -17,6 +17,7 @@ export default function QuantitySelector({ quantity, min = 1, max, onChange }: P
         disabled={quantity <= min}
         onPress={() => onChange(quantity - 1)}
         style={styles.button}
+        testID="decreaseQuantityButton"
       >
         <Text style={styles.buttonText}>−</Text>
       </TouchableOpacity>
@@ -27,6 +28,7 @@ export default function QuantitySelector({ quantity, min = 1, max, onChange }: P
         disabled={max !== undefined && quantity >= max}
         onPress={() => onChange(quantity + 1)}
         style={styles.button}
+        testID="increaseQuantityButton"
       >
         <Text style={styles.buttonText}>+</Text>
       </TouchableOpacity>

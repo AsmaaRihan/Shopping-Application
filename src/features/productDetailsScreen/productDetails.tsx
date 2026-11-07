@@ -8,6 +8,7 @@ import Loader from '../../components/loader/loader';
 import Colors from '../../theme/colors';
 import { addToCart, updateCart } from '../../service/actions/cartActions';
 import AddToCartModal from '../../components/addToCartModel/addToCartModal';
+import ErrorCard from '../../components/errorCard/errorCard';
 import { useTranslation } from 'react-i18next';
 
 type ProductDetailsProps = {
@@ -20,11 +21,18 @@ type ProductDetailsProps = {
 
 const ProductDetails = ({ route }: ProductDetailsProps) => {
   const { productId } = route.params;
+
   const dispatch = useDispatch<AppDispatch>();
+
   const { t } = useTranslation();
+
   const productData = useSelector((state: RootState) => state.productDetails);
+
   const shoppingCart = useSelector((state: RootState) => state.cart.shoppingCart);
+
   const isCartLoading = useSelector((state: RootState) => state.cart.isLoading);
+
+  const isCartError = useSelector((state: RootState) => state.cart.isError);
 
   const { isError, isLoading, productDetails: product } = productData;
 
@@ -38,9 +46,29 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
   }, [fetchProductDetails]);
 
   const [quantity, setQuantity] = useState(1);
+
   const [showCartActions, setShowCartActions] = useState(false);
 
+  const [hasSavedCart, setHasSavedCart] = useState(false);
+
   const availableStock = product?.stock ?? 0;
+
+  const saveProductToCart = async () => {
+    const cartProducts = shoppingCart?.products ?? [];
+
+    const updatedProducts = [
+      ...cartProducts
+        .filter((cartProduct) => cartProduct.id !== productId)
+        .map((cartProduct) => ({ id: cartProduct.id, quantity: cartProduct.quantity })),
+      { id: productId, quantity },
+    ];
+
+    if (cartProducts.length === 0) {
+      return dispatch(addToCart([{ id: productId, quantity }]));
+    }
+
+    return dispatch(updateCart(updatedProducts));
+  };
 
   const handleAddToCart = async () => {
     if (isCartLoading || shoppingCart === null) {
@@ -49,27 +77,26 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
 
     if (availableStock < 1 || quantity > availableStock) {
       Alert.alert(t('product.outOfStock'), t('product.outOfStockMessage'));
+
       return;
     }
-    const cartProducts = shoppingCart?.products ?? [];
-    const updatedProducts = [
-      ...cartProducts
-        .filter((cartProduct) => cartProduct.id !== productId)
-        .map((cartProduct) => ({ id: cartProduct.id, quantity: cartProduct.quantity })),
-      { id: productId, quantity },
-    ];
 
-    try {
-      if (cartProducts.length === 0) {
-        await dispatch(addToCart([{ id: productId, quantity }])).unwrap();
-      } else {
-        await dispatch(updateCart(updatedProducts)).unwrap();
-      }
-      setShowCartActions(true);
-    } catch {
-      Alert.alert(t('cart.updateErrorTitle'), t('cart.updateErrorMessage'));
-    }
+    await saveProductToCart();
+
+    setHasSavedCart(true);
   };
+
+  useEffect(() => {
+    if (!hasSavedCart) {
+      return;
+    }
+
+    setHasSavedCart(false);
+
+    if (!isCartError) {
+      setShowCartActions(true);
+    }
+  }, [hasSavedCart, isCartError]);
 
   const toggleModal = () => setShowCartActions(!showCartActions);
 
@@ -78,12 +105,11 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
   }
   if (isError || !product) {
     return (
-      <View style={styles.center}>
-        <Text>{t('product.loadError')}</Text>
-        <TouchableOpacity onPress={() => fetchProductDetails()}>
-          <Text>{t('common.tryAgain')}</Text>
-        </TouchableOpacity>
-      </View>
+      <ErrorCard
+        errorText={t('product.loadError')}
+        buttonText={t('common.tryAgain')}
+        refetch={fetchProductDetails}
+      />
     );
   }
 
@@ -107,11 +133,22 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
 
           <QuantitySelector quantity={quantity} max={availableStock} onChange={setQuantity} />
 
-          <TouchableOpacity style={styles.addButton} onPress={handleAddToCart} disabled={availableStock <= 0}>
+          <TouchableOpacity
+            testID="add-to-cart-button"
+            style={styles.addButton}
+            onPress={handleAddToCart}
+            disabled={availableStock <= 0}
+          >
             <Text style={styles.addButtonText}>
               {availableStock <= 0 ? t('product.outOfStock') : t('product.addToCart')}
             </Text>
           </TouchableOpacity>
+
+          {isCartError ? (
+            <Text testID="cart-add-error" style={styles.cartAddError}>
+              {t('product.addToCartError')}
+            </Text>
+          ) : null}
         </View>
       </ScrollView>
 
@@ -129,11 +166,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   image: {
     height: 300,
@@ -172,6 +204,11 @@ const styles = StyleSheet.create({
     color: Colors.textTeritary,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  cartAddError: {
+    color: Colors.error,
+    marginTop: 12,
+    textAlign: 'center',
   },
   sectionTitle: {
     fontSize: 17,

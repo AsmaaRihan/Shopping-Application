@@ -7,7 +7,9 @@ import { useTranslation } from 'react-i18next';
 
 const AddToCartModal = ({ toggleModal, isVisible }: { isVisible: boolean; toggleModal: () => void }) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const { t } = useTranslation();
+
   return (
     <Modal visible={isVisible} transparent animationType="fade" onRequestClose={toggleModal}>
       <View style={styles.overlay}>
@@ -17,6 +19,7 @@ const AddToCartModal = ({ toggleModal, isVisible }: { isVisible: boolean; toggle
 
           <TouchableOpacity
             style={styles.checkoutButton}
+            testID="view_cart_button"
             onPress={() => {
               navigation.replace(ScreenNames.Cart);
 
@@ -26,7 +29,11 @@ const AddToCartModal = ({ toggleModal, isVisible }: { isVisible: boolean; toggle
             <Text style={styles.checkoutButtonText}>{t('cartModal.viewCart')}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.resumeButton} onPress={toggleModal}>
+          <TouchableOpacity
+            testID="continue_shopping_button"
+            style={styles.resumeButton}
+            onPress={toggleModal}
+          >
             <Text style={styles.resumeButtonText}>{t('cartModal.continueShopping')}</Text>
           </TouchableOpacity>
         </View>

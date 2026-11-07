@@ -13,8 +13,9 @@ const RadioButtons = ({
 }) => {
   return (
     <View style={styles.container}>
-      {options.map(option => (
+      {options.map((option) => (
         <Pressable
+          testID={`${option}_filter_button`}
           key={option}
           style={styles.option}
           onPress={() => setSelectedOption(option)}
@@ -31,6 +32,7 @@ const RadioButtons = ({
 };
 
 export default RadioButtons;
+
 const styles = StyleSheet.create({
   container: {
     width: '100%',

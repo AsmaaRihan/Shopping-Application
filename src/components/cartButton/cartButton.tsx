@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Button } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Colors from '../../theme/colors';
 import { useNavigation } from '@react-navigation/native';
 import ScreenNames, { RootStackParamList } from '../../rootStack/rootStackType';
@@ -7,11 +7,13 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const CartButton = () => {
   const quantity = 1;
+
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const onPress = () => navigation.navigate(ScreenNames.Cart);
+
   return (
-    <TouchableOpacity onPress={onPress} style={styles.container}>
+    <TouchableOpacity onPress={onPress} style={styles.container} testID="go_to_cart_button">
       <Text style={styles.cartIcon}>🛒</Text>
 
       {quantity > 0 && (

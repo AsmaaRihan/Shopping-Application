@@ -7,7 +7,11 @@ import Colors from '../../theme/colors';
 
 const NoResultFound = () => {
   const dispatch = useDispatch<AppDispatch>();
+
   const { t } = useTranslation();
+
+  const onResetFilter = () => dispatch(resetFilter());
+
   return (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyIcon}>📦</Text>
@@ -16,13 +20,14 @@ const NoResultFound = () => {
 
       <Text style={styles.emptyDescription}>{t('noResults.description')}</Text>
 
-      <TouchableOpacity style={styles.resetButton} onPress={() => dispatch(resetFilter())}>
+      <TouchableOpacity testID="reset-filter-button" style={styles.resetButton} onPress={onResetFilter}>
         <Text style={styles.resetButtonText}>{t('noResults.reset')}</Text>
       </TouchableOpacity>
     </View>
   );
 };
 export default NoResultFound;
+
 const styles = StyleSheet.create({
   emptyContainer: {
     flex: 1,

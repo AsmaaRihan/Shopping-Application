@@ -25,32 +25,32 @@ const ProductsSlice = createSlice({
     filterByCategory: (state, action) => {
       state.category = action.payload;
       // Category names ("Home Decoration") map to product slugs ("home-decoration").
+
       const slug = String(action.payload).toLowerCase().replace(/\s+/g, '-');
       state.filteredProducts = slug
-        ? state.productsData.products.filter(p => p.category === slug)
+        ? state.productsData.products.filter((p) => p.category === slug)
         : state.productsData.products;
     },
-    resetFilter: state => {
+    resetFilter: (state) => {
       state.category = '';
 
       state.filteredProducts = undefined;
     },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     //Products
-    builder.addCase(getProducts.pending, state => {
+    builder.addCase(getProducts.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(getProducts.rejected, state => {
+    builder.addCase(getProducts.rejected, (state) => {
       state.isError = true;
       state.isLoading = false;
     });
     builder.addCase(getProducts.fulfilled, (state, action) => {
       const skip = action.payload.skip ?? 0;
+
       const products =
-        skip > 0
-          ? [...state.productsData.products, ...action.payload.products]
-          : action.payload.products;
+        skip > 0 ? [...state.productsData.products, ...action.payload.products] : action.payload.products;
 
       state.productsData = { ...action.payload, products };
       state.filteredProducts = products;
@@ -58,10 +58,10 @@ const ProductsSlice = createSlice({
     });
 
     //Sorting
-    builder.addCase(getSortedProducts.pending, state => {
+    builder.addCase(getSortedProducts.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(getSortedProducts.rejected, state => {
+    builder.addCase(getSortedProducts.rejected, (state) => {
       state.isError = true;
       state.isLoading = false;
     });
@@ -72,25 +72,23 @@ const ProductsSlice = createSlice({
     });
 
     //Categories
-    builder.addCase(getProductsCategories.pending, state => {
+    builder.addCase(getProductsCategories.pending, (state) => {
       state.isCategoriesLoading = true;
     });
-    builder.addCase(getProductsCategories.rejected, state => {
+    builder.addCase(getProductsCategories.rejected, (state) => {
       state.isCategoriesError = true;
       state.isCategoriesLoading = false;
     });
     builder.addCase(getProductsCategories.fulfilled, (state, action) => {
-      state.categories = action.payload.map(
-        (category: CategoryItem) => category.name,
-      );
+      state.categories = action.payload.map((category: CategoryItem) => category.name);
       state.isCategoriesLoading = false;
     });
 
     //SearchQuery
-    builder.addCase(getProductsBySearch.pending, state => {
+    builder.addCase(getProductsBySearch.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(getProductsBySearch.rejected, state => {
+    builder.addCase(getProductsBySearch.rejected, (state) => {
       state.isError = true;
       state.isLoading = false;
     });

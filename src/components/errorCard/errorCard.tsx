@@ -10,9 +10,9 @@ const ErrorCard = ({
   errorText: string;
 }) => {
   return (
-    <View style={styles.center}>
+    <View style={styles.center} testID="errorCard">
       <Text>{errorText}</Text>
-      <TouchableOpacity onPress={refetch}>
+      <TouchableOpacity testID="errorCardRetryButton" onPress={refetch}>
         <Text>{buttonText}</Text>
       </TouchableOpacity>
     </View>

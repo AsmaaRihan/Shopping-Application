@@ -15,11 +15,15 @@ import { useTranslation } from 'react-i18next';
 
 const HomepageScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const dispatch = useDispatch<AppDispatch>();
+
   const { t } = useTranslation();
+
   const products = useSelector((state: RootState) => state.products);
 
   const [query, setQuery] = useState('');
+
   const isFetchingNextPage = useRef(false);
 
   useEffect(() => {
@@ -55,6 +59,7 @@ const HomepageScreen = () => {
 
   const handleNextPage = useCallback(() => {
     const { skip, limit, total } = products.productsData;
+
     const nextSkip = skip + limit;
 
     // A ref is needed: `isLoading` is stale until the next render.
@@ -71,6 +76,8 @@ const HomepageScreen = () => {
     return <NoResultFound />;
   }
 
+  const onChooseFilterBy = () => navigation.navigate(ScreenNames.ProductsFilter);
+
   return (
     <View>
       <View style={styles.header}>
@@ -83,10 +90,7 @@ const HomepageScreen = () => {
             onChangeText={handleChange}
             returnKeyType="search"
           />
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={() => navigation.navigate(ScreenNames.ProductsFilter)}
-          >
+          <TouchableOpacity testID="filter_by_button" style={styles.filterButton} onPress={onChooseFilterBy}>
             <Text style={styles.filterText}> {t('home.filter')}</Text>
           </TouchableOpacity>
         </View>
@@ -112,7 +116,6 @@ const HomepageScreen = () => {
           );
         }}
         refreshing={products.isLoading}
-        onRefresh={() => console.warn('Refreshing...')}
         onEndReachedThreshold={0.5}
         onEndReached={handleNextPage}
       />

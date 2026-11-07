@@ -3,17 +3,25 @@ import { postCartItem } from '../slice/cartSlice/cart.types';
 import { addToCardService, getCartService, updateCartService } from '../APIs/cartAPI';
 
 export const getCart = createAsyncThunk('cart/getCart', async () => {
-  const response = getCartService();
-
-  return response;
+  try {
+    return await getCartService();
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
 });
 
 export const addToCart = createAsyncThunk('cart/addToCart', async (products: postCartItem[]) => {
-  const response = addToCardService(products);
-  return response;
+  try {
+    return await addToCardService(products);
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
 });
 
 export const updateCart = createAsyncThunk('cart/update', async (products: postCartItem[]) => {
-  const response = updateCartService(products);
-  return response;
+  try {
+    return await updateCartService(products);
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
 });
