@@ -4,9 +4,13 @@ import Colors from '../../theme/colors';
 import { useNavigation } from '@react-navigation/native';
 import ScreenNames, { RootStackParamList } from '../../rootStack/rootStackType';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootState } from '../../store/store';
+import { useSelector } from 'react-redux';
 
 const CartButton = () => {
-  const quantity = 1;
+  const shoppingCart = useSelector((state: RootState) => state.cart.shoppingCart);
+
+  const quantity = shoppingCart?.totalQuantity ?? -1;
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 

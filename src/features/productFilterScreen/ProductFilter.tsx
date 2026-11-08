@@ -1,7 +1,6 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getProductsCategories, getSortedProducts } from '../../service/actions/productsAction';
 import type { AppDispatch, RootState } from '../../store/store';
 import Colors from '../../theme/colors';
 import { filterByCategory, resetFilter } from '../../service/slice/productSlice/productsSlice';
@@ -10,6 +9,7 @@ import RadioButtons from '../../components/radioButton/radioButton';
 import { FilterOptions, sortMap, sortOptions } from './filters.types';
 import Loader from '../../components/loader/loader';
 import { useTranslation } from 'react-i18next';
+import { getProductsCategories, getSortedProducts } from '../../service/actions/productsAction';
 
 const ProductFilter = () => {
   const navigation = useNavigation();

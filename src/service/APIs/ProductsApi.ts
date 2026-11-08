@@ -20,6 +20,7 @@ export const getSortedProductsService = (value: string) => {
 
 export const getProductsCategoriesService = () => {
   const res = api.get('products/categories');
+
   return res;
 };
 

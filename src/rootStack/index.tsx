@@ -5,8 +5,8 @@ import ProductDetails from '../features/productDetailsScreen/productDetails';
 import CartButton from '../components/cartButton/cartButton';
 import ScreenNames, { RootStackParamList } from './rootStackType';
 import HomepageScreen from '../features/homepageScreen/homepage';
-import ProductFilter from '../features/productFilterScreen/productFilter';
 import i18n from '../i18n';
+import ProductFilter from '../features/productFilterScreen/ProductFilter';
 
 const CartHeaderButton = () => {
   return <CartButton />;
