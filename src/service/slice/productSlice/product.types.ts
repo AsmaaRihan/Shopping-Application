@@ -60,7 +60,9 @@ export interface Products {
   filteredProducts?: ProductItem[];
   isLoading: boolean;
   isError: boolean;
+  isFetchingNextPage: boolean;
   category: string;
+  sort: string;
   categories: string[];
   isCategoriesLoading: boolean;
   isCategoriesError: boolean;

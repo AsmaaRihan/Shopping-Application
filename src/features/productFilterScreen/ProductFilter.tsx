@@ -3,13 +3,13 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../store/store';
 import Colors from '../../theme/colors';
-import { filterByCategory, resetFilter } from '../../service/slice/productSlice/productsSlice';
+import { filterByCategory, resetFilter, sortBy } from '../../service/slice/productSlice/productsSlice';
 import { useNavigation } from '@react-navigation/native';
 import RadioButtons from '../../components/radioButton/radioButton';
-import { FilterOptions, sortMap, sortOptions } from './filters.types';
+import { FilterOptions, sortOptionsData } from './filters.types';
 import Loader from '../../components/loader/loader';
 import { useTranslation } from 'react-i18next';
-import { getProductsCategories, getSortedProducts } from '../../service/actions/productsAction';
+import { getProductsCategories } from '../../service/actions/productsAction';
 
 const ProductFilter = () => {
   const navigation = useNavigation();
@@ -18,11 +18,11 @@ const ProductFilter = () => {
 
   const { t } = useTranslation();
 
-  const categories = useSelector((state: RootState) => state.products);
+  const products = useSelector((state: RootState) => state.products);
 
-  const [selectedCategory, setSelectedCategory] = useState(categories.category);
+  const [selectedCategory, setSelectedCategory] = useState(products.category);
 
-  const [selectedSortBy, setSelectedSortBy] = useState('');
+  const [selectedSortBy, setSelectedSortBy] = useState(products.sort);
 
   const [activeTab, setActiveTab] = useState<FilterOptions>('category');
 
@@ -34,7 +34,7 @@ const ProductFilter = () => {
     if (activeTab === 'category') {
       return (
         <RadioButtons
-          options={categories.categories}
+          options={products.categories}
           selectedOption={selectedCategory}
           setSelectedOption={setSelectedCategory}
         />
@@ -44,7 +44,7 @@ const ProductFilter = () => {
     if (activeTab === 'sort') {
       return (
         <RadioButtons
-          options={sortOptions}
+          options={sortOptionsData}
           selectedOption={selectedSortBy}
           setSelectedOption={setSelectedSortBy}
         />
@@ -52,7 +52,7 @@ const ProductFilter = () => {
     }
   };
 
-  if (categories.isCategoriesLoading) {
+  if (products.isCategoriesLoading) {
     return <Loader />;
   }
 
@@ -61,20 +61,13 @@ const ProductFilter = () => {
     navigation.goBack();
   };
 
-  const handleApplySort = () => {
-    const sort = sortMap[selectedSortBy];
-    if (!sort) {
-      return;
+  const onSelectApplyFilter = () => {
+    if (selectedCategory) {
+      dispatch(filterByCategory(selectedCategory));
     }
 
-    dispatch(getSortedProducts(`sortBy=${sort.sortBy}&order=${sort.order}`));
-  };
-
-  const onSelectApplyFilter = () => {
-    if (activeTab === 'category') {
-      dispatch(filterByCategory(selectedCategory));
-    } else {
-      handleApplySort();
+    if (selectedSortBy) {
+      dispatch(sortBy(selectedSortBy));
     }
     navigation.goBack();
   };
