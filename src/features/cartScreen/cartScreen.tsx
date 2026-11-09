@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -13,11 +13,11 @@ import Colors from '../../theme/colors';
 import { useNavigation } from '@react-navigation/native';
 import type { AppDispatch, RootState } from '../../store/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCart } from '../../service/actions/cartActions';
 import { formatShoppingCart } from './utils';
 import QuantitySelector from '../../components/quantitySelector/quantitySelector';
-import ErrorCard from '../../components/errorCard/errorCard';
 import { useTranslation } from 'react-i18next';
+import { fetchCart, removeFromCart, updateQuantity } from '../../service/slice/cartSlice/cartSlice';
+import ErrorCard from '../../components/errorCard/errorCard';
 
 const CartScreen = () => {
   const navigation = useNavigation();
@@ -32,34 +32,7 @@ const CartScreen = () => {
 
   const fromatedShoppingItems = shoppingCart ? formatShoppingCart(shoppingCart) : [];
 
-  const [items, setItems] = useState(fromatedShoppingItems);
-
-  const [isUpdating, setIsUpdating] = useState(false);
-
-  const syncCart = async (newItems: typeof items) => {
-    setItems(newItems);
-    setIsUpdating(true);
-
-    const updatedProducts = newItems.map((item) => ({ id: item.id, quantity: item.quantity }));
-
-    await dispatch(updateCart(updatedProducts));
-
-    setIsUpdating(false);
-  };
-
-  const updateQuantity = (id: number, amount: number) => {
-    const newItems = items
-      .map((item) => (item.id === id ? { ...item, quantity: item.quantity + amount } : item))
-      .filter((item) => item.quantity > 0);
-
-    syncCart(newItems);
-  };
-
-  const removeItem = (id: number) => {
-    syncCart(items.filter((item) => item.id !== id));
-  };
-
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = shoppingCart?.total ?? 0;
 
   const shipping = subtotal === 0 || subtotal >= 100 ? 0 : 5.99;
 
@@ -68,21 +41,16 @@ const CartScreen = () => {
   const formatPrice = (price: number) => `€${price.toFixed(2)}`;
 
   const onBack = () => {
-    if (isUpdating) {
-      return;
-    }
-
     navigation.goBack();
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity testID="cart-back-button" onPress={onBack} disabled={isUpdating}>
+        <TouchableOpacity testID="cart-back-button" onPress={onBack}>
           <Text style={styles.back}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('cart.title')}</Text>
-        <Text style={styles.count}>{items.length} items</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -90,21 +58,20 @@ const CartScreen = () => {
           <ErrorCard
             errorText={t('cart.updateErrorMessage')}
             buttonText={t('common.tryAgain')}
-            refetch={() => syncCart(items)}
+            refetch={() => dispatch(fetchCart())}
           />
         ) : null}
 
-        {items.length === 0 ? (
+        {fromatedShoppingItems.length === 0 ? (
           <View style={styles.empty}>
             <Text style={styles.emptyIcon}>🛒</Text>
             <Text style={styles.emptyTitle}>{t('cart.emptyTitle')}</Text>
             <Text style={styles.muted}>{t('cart.emptyDescription')}</Text>
           </View>
         ) : (
-          items.map((item) => (
+          fromatedShoppingItems.map((item) => (
             <View key={item.id} style={styles.product}>
-              <Image source={{ uri: item.image }} style={styles.productImage} />
-
+              {item?.image && <Image source={{ uri: item.image }} style={styles.productImage} />}
               <View style={styles.productInfo}>
                 <Text style={styles.productName}>{item.name}</Text>
                 <Text style={styles.variant}>{item.variant}</Text>
@@ -113,13 +80,20 @@ const CartScreen = () => {
                 <QuantitySelector
                   quantity={item.quantity}
                   min={0}
-                  onChange={(nextQuantity) => updateQuantity(item.id, nextQuantity - item.quantity)}
+                  onChange={(nextQuantity) =>
+                    dispatch(
+                      updateQuantity({
+                        id: item.id,
+                        quantity: nextQuantity,
+                      }),
+                    )
+                  }
                 />
               </View>
 
               <TouchableOpacity
                 testID={`remove-cart-item-${item.id}`}
-                onPress={() => removeItem(item.id)}
+                onPress={() => dispatch(removeFromCart(item.id))}
                 style={styles.deleteButton}
               >
                 <Text style={styles.deleteText}>✕</Text>
@@ -129,8 +103,10 @@ const CartScreen = () => {
         )}
 
         <View style={styles.summary}>
-          <Text style={styles.sectionTitle}>{t('cart.orderSummary')}</Text>
-
+          <View style={styles.summaryHeader}>
+            <Text style={styles.sectionTitle}>{t('cart.orderSummary')}</Text>
+            <Text style={styles.count}>{fromatedShoppingItems.length} items</Text>
+          </View>
           <View style={styles.summaryRow}>
             <Text style={styles.muted}>{t('cart.subtotal')}</Text>
             <Text style={styles.summaryValue}>{formatPrice(subtotal)}</Text>
@@ -163,8 +139,8 @@ const CartScreen = () => {
 
         <TouchableOpacity
           testID="cart-checkout-button"
-          style={[styles.checkoutButton, items.length === 0 && styles.disabledButton]}
-          disabled={items.length === 0}
+          style={[styles.checkoutButton, fromatedShoppingItems.length === 0 && styles.disabledButton]}
+          disabled={fromatedShoppingItems.length === 0}
           onPress={() => Alert.alert(t('cart.checkoutTitle'), t('cart.checkoutMessage'))}
         >
           <Text style={styles.checkoutText}>{t('cart.checkout')}</Text>
@@ -184,7 +160,6 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 22,
     paddingVertical: 18,
   },
@@ -196,6 +171,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700',
     color: Colors.text,
+    marginLeft: 10,
   },
   count: {
     fontSize: 13,
@@ -353,5 +329,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     marginTop: 15,
+  },
+  summaryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 18,
   },
 });

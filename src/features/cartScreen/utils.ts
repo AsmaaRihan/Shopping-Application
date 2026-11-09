@@ -6,7 +6,7 @@ export type FormattedCartItem = {
   variant: string;
   price: number;
   quantity: number;
-  image: string;
+  image?: string;
 };
 
 export const formatShoppingCart = (cart: ShoppingCart): FormattedCartItem[] => {

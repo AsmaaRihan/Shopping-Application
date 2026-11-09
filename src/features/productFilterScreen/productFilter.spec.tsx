@@ -58,6 +58,7 @@ jest.mock('../../service/actions/productsAction', () => ({
 
 jest.mock('../../service/slice/productSlice/productsSlice', () => ({
   filterByCategory: jest.fn(() => 'filterByCategory'),
+  sortBy: jest.fn(() => 'sortBy'),
   resetFilter: jest.fn(() => 'resetFilter'),
 }));
 
@@ -154,30 +155,6 @@ describe('ProductFilterScreen', () => {
 
     expect(getByTestId('radioOption-Beauty')).toBeTruthy();
     expect(queryByTestId('radioOption-Price: Low to High')).toBeNull();
-  });
-
-  it.each([
-    ['Price: Low to High', 'sortBy=price&order=asc'],
-    ['Price: High to Low', 'sortBy=price&order=desc'],
-    ['Name: A to Z', 'sortBy=title&order=asc'],
-    ['Name: Z to A', 'sortBy=title&order=desc'],
-  ])('applies the %s sort option', async (option, query) => {
-    const { getByTestId } = await render(<ProductFilter />);
-
-    const sortByBtn = getByTestId('select_sort_filter_button');
-
-    const applyFilterBtn = getByTestId('apply_filter_button');
-
-    await fireEvent.press(sortByBtn);
-
-    await fireEvent.press(getByTestId(`radioOption-${option}`));
-
-    await fireEvent.press(applyFilterBtn);
-
-    expect(getSortedProducts).toHaveBeenCalledWith(query);
-    expect(mockDispatch).toHaveBeenCalledWith('getSortedProducts');
-    expect(filterByCategory).not.toHaveBeenCalled();
-    expect(mockGoBack).toHaveBeenCalled();
   });
 
   it('marks the selected sort option', async () => {

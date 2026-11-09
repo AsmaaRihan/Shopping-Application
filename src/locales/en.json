@@ -26,7 +26,8 @@
     "checkoutTitle": "Checkout",
     "checkoutMessage": "Proceeding to checkout!",
     "updateErrorTitle": "Unable to update cart",
-    "updateErrorMessage": "Please try again."
+    "updateErrorMessage": "Please try again.",
+    "items": "items"
   },
   "product": {
     "outOfStock": "Out of stock",

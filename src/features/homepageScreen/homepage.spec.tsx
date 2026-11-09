@@ -12,10 +12,6 @@ jest.mock('../../service/actions/productsAction', () => ({
   getProductsBySearch: jest.fn(() => 'getProductsBySearch'),
 }));
 
-jest.mock('../../service/actions/cartActions', () => ({
-  getCart: jest.fn(() => 'getCart'),
-}));
-
 jest.mock('react-redux', () => ({
   useDispatch: () => mockDispatch,
   useSelector: (selector: (state: unknown) => unknown) =>

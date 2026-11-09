@@ -10,8 +10,8 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ScreenNames, { type RootStackParamList } from '../../rootStack/rootStackType';
 import NoResultFound from '../../components/NoResultFound/noResultFound';
-import { getCart } from '../../service/actions/cartActions';
 import { useTranslation } from 'react-i18next';
+import Loader from '../../components/loader/loader';
 
 const HomepageScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -33,10 +33,6 @@ const HomepageScreen = () => {
       dispatch(getProductsBySearch(query));
     }
   }, [dispatch, query]);
-
-  useEffect(() => {
-    dispatch(getCart());
-  }, [dispatch]);
 
   const debouncedSearch = useMemo(
     () =>
@@ -71,6 +67,10 @@ const HomepageScreen = () => {
       isFetchingNextPage.current = false;
     });
   }, [dispatch, products.productsData, products.category, query]);
+
+  if (products.isLoading) {
+    return <Loader />;
+  }
 
   if (products.filteredProducts?.length === 0 && !products.isLoading) {
     return <NoResultFound />;
@@ -115,9 +115,15 @@ const HomepageScreen = () => {
             />
           );
         }}
-        refreshing={products.isLoading}
         onEndReachedThreshold={0.5}
         onEndReached={handleNextPage}
+        ListFooterComponent={
+          products.isFetchingNextPage ? (
+            <View style={styles.footerLoader}>
+              <Loader size={20} />
+            </View>
+          ) : undefined
+        }
       />
     </View>
   );
@@ -170,5 +176,11 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingBottom: 30,
     marginBottom: 10,
+  },
+  footerLoader: {
+    paddingVertical: 25,
+    paddingBottom: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

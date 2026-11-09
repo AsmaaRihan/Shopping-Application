@@ -6,10 +6,10 @@ import { AppDispatch, RootState } from '../../store/store';
 import { getProductDetails } from '../../service/actions/productsAction';
 import Loader from '../../components/loader/loader';
 import Colors from '../../theme/colors';
-import { addToCart, updateCart } from '../../service/actions/cartActions';
 import AddToCartModal from '../../components/addToCartModel/addToCartModal';
 import ErrorCard from '../../components/errorCard/errorCard';
 import { useTranslation } from 'react-i18next';
+import { addToCart } from '../../service/slice/cartSlice/cartSlice';
 
 type ProductDetailsProps = {
   route: {
@@ -28,10 +28,6 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
 
   const productData = useSelector((state: RootState) => state.productDetails);
 
-  const shoppingCart = useSelector((state: RootState) => state.cart.shoppingCart);
-
-  const isCartLoading = useSelector((state: RootState) => state.cart.isLoading);
-
   const isCartError = useSelector((state: RootState) => state.cart.isError);
 
   const { isError, isLoading, productDetails: product } = productData;
@@ -49,31 +45,10 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
 
   const [showCartActions, setShowCartActions] = useState(false);
 
-  const [hasSavedCart, setHasSavedCart] = useState(false);
-
   const availableStock = product?.stock ?? 0;
 
-  const saveProductToCart = async () => {
-    const cartProducts = shoppingCart?.products ?? [];
-
-    const updatedProducts = [
-      ...cartProducts
-        .filter((cartProduct) => cartProduct.id !== productId)
-        .map((cartProduct) => ({ id: cartProduct.id, quantity: cartProduct.quantity })),
-      { id: productId, quantity },
-    ];
-
-    if (cartProducts.length === 0) {
-      return dispatch(addToCart([{ id: productId, quantity }]));
-    }
-
-    return dispatch(updateCart(updatedProducts));
-  };
-
-  const handleAddToCart = async () => {
-    if (isCartLoading || shoppingCart === null) {
-      return;
-    }
+  const handleAddToCart = () => {
+    if (!product) return;
 
     if (availableStock < 1 || quantity > availableStock) {
       Alert.alert(t('product.outOfStock'), t('product.outOfStockMessage'));
@@ -81,24 +56,20 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
       return;
     }
 
-    await saveProductToCart();
+    dispatch(
+      addToCart({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        thumbnail: product.thumbnail,
+        quantity,
+      }),
+    );
 
-    setHasSavedCart(true);
+    setShowCartActions(true);
   };
 
-  useEffect(() => {
-    if (!hasSavedCart) {
-      return;
-    }
-
-    setHasSavedCart(false);
-
-    if (!isCartError) {
-      setShowCartActions(true);
-    }
-  }, [hasSavedCart, isCartError]);
-
-  const toggleModal = () => setShowCartActions(!showCartActions);
+  const toggleModal = () => setShowCartActions((previous) => !previous);
 
   if (isLoading) {
     return <Loader />;

@@ -1,6 +1,6 @@
 module.exports = {
   preset: '@react-native/jest-preset',
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@reduxjs|immer|react-redux)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-navigation|@reduxjs|immer|react-redux)/)',
   ],
 };

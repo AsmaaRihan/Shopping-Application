@@ -38,11 +38,6 @@ jest.mock('../../service/actions/productsAction', () => ({
   getProductDetails: jest.fn(() => 'getProductDetails'),
 }));
 
-jest.mock('../../service/actions/cartActions', () => ({
-  addToCart: jest.fn(() => 'addToCart'),
-  updateCart: jest.fn(() => 'updateCart'),
-}));
-
 jest.mock('../../components/quantitySelector/quantitySelector', () => {
   return ({ quantity, onChange }: { quantity: number; onChange: (value: number) => void }) =>
     mockReact.createElement(
@@ -199,43 +194,6 @@ describe('ProductDetailsScreen', () => {
 
     await fireEvent.press(cartModal);
     expect(queryByTestId('toggle-cart-modal')).toBeNull();
-  });
-
-  it('updates an existing cart without duplicating the product', async () => {
-    mockState = {
-      ...mockState,
-      cart: {
-        ...mockState.cart,
-        shoppingCart: {
-          products: [
-            { id: 2, quantity: 3 },
-            { id: 1, quantity: 1 },
-          ],
-        },
-      },
-    };
-
-    const { getByTestId } = await render(<ProductDetails route={{ params: { productId: 1 } }} />);
-
-    const addToCartButton = getByTestId('add-to-cart-button');
-    await fireEvent.press(addToCartButton);
-
-    expect(mockDispatch).toHaveBeenCalledWith('updateCart');
-  });
-
-  it('does not add an item while the cart is loading', async () => {
-    mockState = {
-      ...mockState,
-      cart: { ...mockState.cart, isLoading: true },
-    };
-
-    const { getByTestId } = await render(<ProductDetails route={{ params: { productId: 1 } }} />);
-
-    const addToCartButton = getByTestId('add-to-cart-button');
-
-    await fireEvent.press(addToCartButton);
-
-    expect(mockDispatch).toHaveBeenCalledTimes(1);
   });
 
   it('shows an alert when the requested quantity exceeds stock', async () => {

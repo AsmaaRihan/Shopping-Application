@@ -1,14 +1,9 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import Colors from '../../theme/colors';
 
-const Loader = () => {
+const Loader = ({ size = 36 }) => {
   return (
-    <ActivityIndicator
-      testID="loader"
-      color={Colors.primary}
-      style={styles.loadingContainer}
-      size="large"
-    />
+    <ActivityIndicator testID="loader" color={Colors.primary} style={styles.loadingContainer} size={size} />
   );
 };
 

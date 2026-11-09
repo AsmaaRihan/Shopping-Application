@@ -1,25 +1,34 @@
-interface CartItem {
+export interface CartItem {
   id: number;
   title: string;
   price: number;
+  thumbnail?: string;
   quantity: number;
-  total: number;
-  discountPercentage: number;
-  discountedPrice: number;
-  thumbnail: string;
 }
 
 export interface ShoppingCart {
   id: number;
   products: CartItem[];
   total: number;
-  discountedTotal: number;
-  userId: number;
   totalProducts: number;
   totalQuantity: number;
 }
 
-export type postCartItem = {
+export interface CartState {
+  shoppingCart: ShoppingCart | null;
+  isLoading: boolean;
+  isError: boolean;
+}
+
+export type AddToCartPayload = {
+  id: number;
+  title: string;
+  price: number;
+  thumbnail?: string;
+  quantity: number;
+};
+
+export type UpdateCartPayload = {
   id: number;
   quantity: number;
 };

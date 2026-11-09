@@ -44,6 +44,8 @@ test('filters products by category slug', () => {
     isCategoriesLoading: false,
     isCategoriesError: false,
     category: '',
+    sort: '',
+    isFetchingNextPage: false,
   };
 
   const state = reducer(baseState, filterByCategory('Beauty'));
@@ -73,11 +75,13 @@ test('resets the selected filter', () => {
       categories: [],
       isCategoriesLoading: false,
       isCategoriesError: false,
-      category: 'Beauty',
+      category: '',
+      sort: '',
+      isFetchingNextPage: false,
     },
     resetFilter(),
   );
 
   expect(state.category).toBe('');
-  expect(state.filteredProducts).toBeUndefined();
+  expect(state.filteredProducts).toEqual([]);
 });

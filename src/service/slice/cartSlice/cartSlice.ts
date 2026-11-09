@@ -1,66 +1,101 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { addToCart, getCart, updateCart } from '../../actions/cartActions';
-import { ShoppingCart } from './cart.types';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-type ShoppingCartType = {
-  shoppingCart: ShoppingCart | null;
-  isLoading: boolean;
-  isError: boolean;
-};
+import type { CartState, ShoppingCart, AddToCartPayload, UpdateCartPayload } from './cart.types';
 
-const initialState: ShoppingCartType = {
+import { calculateCartTotals } from './utils';
+
+const initialState: CartState = {
   shoppingCart: null,
   isLoading: false,
   isError: false,
 };
 
-const CartSlice = createSlice({
-  name: 'Cart',
+const updateCartTotals = (cart: ShoppingCart) => {
+  const totals = calculateCartTotals(cart.products);
+
+  cart.total = totals.total;
+  cart.totalProducts = totals.totalProducts;
+  cart.totalQuantity = totals.totalQuantity;
+};
+
+const cartSlice = createSlice({
+  name: 'cart',
   initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    //get cart
-    builder.addCase(getCart.pending, (state) => {
-      state.isLoading = true;
-      state.isError = false;
-    });
-    builder.addCase(getCart.rejected, (state) => {
-      state.isError = true;
-      state.isLoading = false;
-    });
-    builder.addCase(getCart.fulfilled, (state, action) => {
-      state.shoppingCart = action.payload;
-      state.isLoading = false;
-    });
 
-    //Add To Cart
-    builder.addCase(addToCart.pending, (state) => {
-      state.isLoading = true;
+  reducers: {
+    addToCart: (state, action: PayloadAction<AddToCartPayload>) => {
       state.isError = false;
-    });
-    builder.addCase(addToCart.rejected, (state) => {
-      state.isError = true;
-      state.isLoading = false;
-    });
-    builder.addCase(addToCart.fulfilled, (state, action) => {
-      state.shoppingCart = action.payload;
-      state.isLoading = false;
-    });
 
-    //Update Cart
-    builder.addCase(updateCart.pending, (state) => {
+      if (!state.shoppingCart) {
+        state.shoppingCart = {
+          id: Date.now(),
+          products: [],
+          total: 0,
+          totalProducts: 0,
+          totalQuantity: 0,
+        };
+      }
+
+      const cart = state.shoppingCart;
+
+      const existingProduct = cart.products.find((item) => item.id === action.payload.id);
+
+      if (existingProduct) {
+        existingProduct.quantity += action.payload.quantity;
+      } else {
+        cart.products.push(action.payload);
+      }
+
+      updateCartTotals(cart);
+    },
+
+    updateQuantity: (state, action: PayloadAction<UpdateCartPayload>) => {
+      if (!state.shoppingCart) return;
+
+      const { id, quantity } = action.payload;
+
+      const cart = state.shoppingCart;
+
+      if (quantity <= 0) {
+        cart.products = cart.products.filter((item) => item.id !== id);
+      } else {
+        const product = cart.products.find((item) => item.id === id);
+
+        if (product) {
+          product.quantity = quantity;
+        }
+      }
+
+      updateCartTotals(cart);
+    },
+
+    removeFromCart: (state, action: PayloadAction<number>) => {
+      if (!state.shoppingCart) return;
+
+      state.shoppingCart.products = state.shoppingCart.products.filter((item) => item.id !== action.payload);
+
+      updateCartTotals(state.shoppingCart);
+    },
+
+    clearCart: (state) => {
+      if (!state.shoppingCart) return;
+
+      state.shoppingCart.products = [];
+
+      updateCartTotals(state.shoppingCart);
+    },
+
+    fetchCart: (state) => {
       state.isLoading = true;
-      state.isError = false;
-    });
-    builder.addCase(updateCart.rejected, (state) => {
-      state.isError = true;
+
+      if (state.shoppingCart) {
+        updateCartTotals(state.shoppingCart);
+      }
       state.isLoading = false;
-    });
-    builder.addCase(updateCart.fulfilled, (state, action) => {
-      state.shoppingCart = action.payload;
-      state.isLoading = false;
-    });
+    },
   },
 });
 
-export default CartSlice.reducer;
+export const { addToCart, updateQuantity, removeFromCart, clearCart, fetchCart } = cartSlice.actions;
+
+export default cartSlice.reducer;
