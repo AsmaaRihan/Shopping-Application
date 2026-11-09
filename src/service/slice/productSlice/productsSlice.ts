@@ -1,17 +1,23 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getProducts, getProductsBySearch, getProductsCategories } from '../../actions/productsAction';
-import { CategoryItem, Products } from './product.types';
+import { getProducts, getProductsBySearch } from '../../actions/productsAction';
+import { Products } from './product.types';
 import { applyFilters } from './utils';
 
 const initialState: Products = {
-  productsData: { products: [], limit: 0, total: 0, skip: 0 },
-  filteredProducts: [],
+  products: [],
+  categories: [],
+  pagination: {
+    currentPage: 0,
+    limit: -1,
+    totalItems: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  },
   isLoading: true,
   isError: false,
   isFetchingNextPage: false,
-  categories: [],
-  isCategoriesLoading: false,
-  isCategoriesError: false,
+  filteredProducts: [],
   category: '',
   sort: '',
 };
@@ -41,41 +47,28 @@ const ProductsSlice = createSlice({
   },
   extraReducers: (builder) => {
     //Products
-    builder.addCase(getProducts.pending, (state) => {
-      const skip = state.productsData.skip ?? 0;
-      if (skip > 0) {
+    builder.addCase(getProducts.pending, (state, action) => {
+      if (action.meta.arg !== undefined && action.meta.arg > 0) {
         state.isFetchingNextPage = true;
-      } else if (state.productsData.products.length === 0) {
+      } else {
         state.isLoading = true;
       }
     });
     builder.addCase(getProducts.rejected, (state) => {
       state.isError = true;
       state.isLoading = false;
-    });
-    builder.addCase(getProducts.fulfilled, (state, action) => {
-      const skip = action.payload.skip ?? 0;
-
-      const products =
-        skip > 0 ? [...state.productsData.products, ...action.payload.products] : action.payload.products;
-
-      state.productsData = { ...action.payload, products };
-      state.filteredProducts = products;
-      state.isLoading = false;
       state.isFetchingNextPage = false;
     });
-
-    //Categories
-    builder.addCase(getProductsCategories.pending, (state) => {
-      state.isCategoriesLoading = true;
-    });
-    builder.addCase(getProductsCategories.rejected, (state) => {
-      state.isCategoriesError = true;
-      state.isCategoriesLoading = false;
-    });
-    builder.addCase(getProductsCategories.fulfilled, (state, action) => {
-      state.categories = action.payload.map((category: CategoryItem) => category.name);
-      state.isCategoriesLoading = false;
+    builder.addCase(getProducts.fulfilled, (state, action) => {
+      state.products =
+        action.meta.arg !== undefined && action.meta.arg > 0
+          ? [...state.products, ...action.payload.products]
+          : action.payload.products;
+      state.categories = action.payload.categories;
+      state.pagination = action.payload.pagination;
+      state.isLoading = false;
+      state.isError = false;
+      state.isFetchingNextPage = false;
     });
 
     //SearchQuery

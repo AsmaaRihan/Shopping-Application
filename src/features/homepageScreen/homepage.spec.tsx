@@ -17,15 +17,19 @@ jest.mock('react-redux', () => ({
   useSelector: (selector: (state: unknown) => unknown) =>
     selector({
       products: {
-        productsData: {
-          products: [{ id: 1, title: 'Phone', price: 100, images: ['image'] }],
+        products: [{ id: 1, title: 'Phone', price: 100, images: ['image'] }],
+        pagination: {
+          currentPage: 0,
           limit: 10,
-          total: 1,
-          skip: 0,
+          totalItems: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
         },
         filteredProducts: [{ id: 1, title: 'Phone', price: 100, images: ['image'] }],
         isLoading: false,
         isError: false,
+        isFetchingNextPage: false,
         categories: [],
         isCategoriesLoading: false,
         isCategoriesError: false,

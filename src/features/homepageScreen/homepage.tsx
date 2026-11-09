@@ -1,17 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import * as _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-import { getProducts, getProductsBySearch } from '../../service/actions/productsAction';
+import { getProducts } from '../../service/actions/productsAction';
 import type { AppDispatch, RootState } from '../../store/store';
 import Colors from '../../theme/colors';
 import ProductListItem from '../../components/productItem/productItem';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ScreenNames, { type RootStackParamList } from '../../rootStack/rootStackType';
-import NoResultFound from '../../components/NoResultFound/noResultFound';
 import { useTranslation } from 'react-i18next';
 import Loader from '../../components/loader/loader';
+import ErrorCard from '../../components/errorCard/errorCard';
 
 const HomepageScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -20,61 +19,54 @@ const HomepageScreen = () => {
 
   const { t } = useTranslation();
 
-  const products = useSelector((state: RootState) => state.products);
+  const productsData = useSelector((state: RootState) => state.products);
+
+  const { isError, isLoading, products, isFetchingNextPage } = productsData;
 
   const [query, setQuery] = useState('');
 
-  const isFetchingNextPage = useRef(false);
+  const hasUserScrolledRef = useRef(false);
 
-  useEffect(() => {
-    if (_.isEmpty(query.trim())) {
-      dispatch(getProducts(0));
-    } else {
-      dispatch(getProductsBySearch(query));
-    }
-  }, [dispatch, query]);
-
-  const debouncedSearch = useMemo(
-    () =>
-      _.debounce((text: string) => {
-        setQuery(text);
-      }, 500),
-    [],
+  const fetchProducts = useCallback(
+    async (nextPage = 0) => {
+      await dispatch(getProducts(nextPage));
+    },
+    [dispatch],
   );
 
   useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [debouncedSearch]);
+    fetchProducts(0);
+  }, [fetchProducts]);
+
+  const handleNextPage = useCallback(() => {
+    const { currentPage, hasNextPage } = productsData.pagination;
+
+    if (!hasUserScrolledRef.current || !hasNextPage || isFetchingNextPage) {
+      return;
+    }
+
+    fetchProducts(currentPage + 1);
+  }, [fetchProducts, isFetchingNextPage, productsData.pagination]);
 
   const handleChange = (text: string) => {
     setQuery(text);
-    debouncedSearch(text);
   };
-
-  const handleNextPage = useCallback(() => {
-    const { skip, limit, total } = products.productsData;
-
-    const nextSkip = skip + limit;
-
-    // A ref is needed: `isLoading` is stale until the next render.
-    if (isFetchingNextPage.current || query.trim() || products.category) return;
-    if (nextSkip >= total) return;
-
-    isFetchingNextPage.current = true;
-    dispatch(getProducts(nextSkip)).finally(() => {
-      isFetchingNextPage.current = false;
-    });
-  }, [dispatch, products.productsData, products.category, query]);
-
-  if (products.isLoading) {
+  if (isLoading) {
     return <Loader />;
   }
-
-  if (products.filteredProducts?.length === 0 && !products.isLoading) {
-    return <NoResultFound />;
+  if (isError) {
+    return (
+      <ErrorCard
+        refetch={fetchProducts}
+        title={t('productsError.title')}
+        description={t('productsError.description')}
+      />
+    );
   }
+
+  // if (products.filteredProducts?.length === 0 && !isLoading) {
+  //   return <NoResultFound />;
+  // }
 
   const onChooseFilterBy = () => navigation.navigate(ScreenNames.ProductsFilter);
 
@@ -97,28 +89,26 @@ const HomepageScreen = () => {
       </View>
 
       <FlatList
-        data={products.filteredProducts ?? products.productsData.products}
+        data={products}
         numColumns={2}
-        keyExtractor={(item) => item?.title}
-        key={'products_flat_list'}
-        style={styles.flatListStyle}
-        renderItem={({ item }) => {
-          return (
-            <ProductListItem
-              key={item?.title}
-              item={item}
-              onPress={() =>
-                navigation.navigate(ScreenNames.ProductsDetails, {
-                  productId: item?.id,
-                })
-              }
-            />
-          );
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <ProductListItem
+            item={item}
+            onPress={() =>
+              navigation.navigate(ScreenNames.ProductsDetails, {
+                productId: item.id,
+              })
+            }
+          />
+        )}
+        onScrollBeginDrag={() => {
+          hasUserScrolledRef.current = true;
         }}
         onEndReachedThreshold={0.5}
         onEndReached={handleNextPage}
         ListFooterComponent={
-          products.isFetchingNextPage ? (
+          isFetchingNextPage ? (
             <View style={styles.footerLoader}>
               <Loader size={20} />
             </View>
@@ -171,12 +161,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     color: Colors.text,
   },
-  flatListStyle: {
-    alignContent: 'stretch',
-    padding: 10,
-    paddingBottom: 30,
-    marginBottom: 10,
-  },
+
   footerLoader: {
     paddingVertical: 25,
     paddingBottom: 50,

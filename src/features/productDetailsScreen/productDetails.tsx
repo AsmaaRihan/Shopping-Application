@@ -1,4 +1,13 @@
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import QuantitySelector from '../../components/quantitySelector/quantitySelector';
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -52,7 +61,7 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
   const availableStock = product?.stock ?? 0;
 
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product || isAddingToCart) return;
 
     if (availableStock < 1 || quantity > availableStock) {
       Alert.alert(t('product.outOfStock'), t('product.outOfStockMessage'));
@@ -70,7 +79,6 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
     setIsAddingToCart(true);
   };
 
-  // The thunk result is read from the cart slice, so wait for the request to settle.
   useEffect(() => {
     if (!isAddingToCart || isCartLoading) return;
 
@@ -104,7 +112,7 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
         <View style={styles.content}>
           <Text style={styles.title}>{product.title}</Text>
 
-          <Text style={styles.rating}>⭐ {product.rating} / 5</Text>
+          {/* <Text style={styles.rating}>⭐ {product.rating} / 5</Text> */}
 
           <Text style={styles.price}>${product.price}</Text>
 
@@ -118,13 +126,17 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
 
           <TouchableOpacity
             testID="add-to-cart-button"
-            style={styles.addButton}
+            style={[styles.addButton, (availableStock <= 0 || isAddingToCart) && styles.disabledButton]}
             onPress={handleAddToCart}
-            disabled={availableStock <= 0}
+            disabled={availableStock <= 0 || isAddingToCart}
           >
-            <Text style={styles.addButtonText}>
-              {availableStock <= 0 ? t('product.outOfStock') : t('product.addToCart')}
-            </Text>
+            {isAddingToCart ? (
+              <ActivityIndicator testID="add-to-cart-loader" color={Colors.textTeritary} />
+            ) : (
+              <Text style={styles.addButtonText}>
+                {availableStock <= 0 ? t('product.outOfStock') : t('product.addToCart')}
+              </Text>
+            )}
           </TouchableOpacity>
 
           {isCartError ? (
@@ -182,6 +194,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 10,
     alignItems: 'center',
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
   addButtonText: {
     color: Colors.textTeritary,

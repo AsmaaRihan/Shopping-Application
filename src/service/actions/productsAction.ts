@@ -7,32 +7,52 @@ import {
   getSortedProductsService,
 } from '../APIs/productsApi';
 
-export const getProducts = createAsyncThunk('products', async (skip?: number) => {
-  const response = await getProductsService(skip);
+export const getProducts = createAsyncThunk('products', async (nextPage?: number) => {
+  try {
+    const response = await getProductsService(nextPage);
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
 });
 
 export const getProductDetails = createAsyncThunk('products/product', async (productId: number) => {
-  const response = await getProductDetailsService(productId);
+  try {
+    const response = await getProductDetailsService(productId);
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
 });
 
 export const getSortedProducts = createAsyncThunk('products/sortBy', async (value: string) => {
-  const response = await getSortedProductsService(value);
+  try {
+    const response = await getSortedProductsService(value);
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
 });
 
 export const getProductsCategories = createAsyncThunk('products/categories', async () => {
-  const response = await getProductsCategoriesService();
+  try {
+    const response = await getProductsCategoriesService();
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
 });
 
 export const getProductsBySearch = createAsyncThunk('products/searchBy', async (value: string) => {
-  const response = await getProductsBySearchService(value);
+  try {
+    const response = await getProductsBySearchService(value);
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
 });
