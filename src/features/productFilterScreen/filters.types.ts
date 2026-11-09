@@ -11,14 +11,11 @@ export const sortOptionsData: string[] = [
   SortingOptions.sort_name_asc,
   SortingOptions.sort_name_dec,
 ];
-
-export const sortMap: Record<
-  string,
-  {
-    sortBy: 'price' | 'title';
-    order: 'asc' | 'desc';
-  }
-> = {
+export type sortingValues = {
+  sortBy: 'price' | 'title';
+  order: 'asc' | 'desc';
+};
+export const sortMap: Record<string, sortingValues> = {
   'Price: Low to High': {
     sortBy: 'price',
     order: 'asc',
@@ -38,3 +35,13 @@ export const sortMap: Record<
 };
 
 export type FilterOptions = 'category' | 'sort';
+
+export const getSortLabel = (sort?: sortingValues | null): string => {
+  if (!sort) return '';
+
+  const entry = Object.entries(sortMap).find(
+    ([, value]) => value.sortBy === sort.sortBy && value.order === sort.order,
+  );
+
+  return entry ? entry[0] : '';
+};

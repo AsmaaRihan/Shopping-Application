@@ -1,3 +1,5 @@
+import { sortingValues } from '../../../features/productFilterScreen/filters.types';
+
 export interface ProductItem {
   id: number;
   title: string;
@@ -19,10 +21,10 @@ export interface Products {
     hasPreviousPage: boolean;
   };
   categories: string[];
-  filteredProducts?: ProductItem[];
   isLoading: boolean;
   isError: boolean;
   isFetchingNextPage: boolean;
   category: string;
-  sort: string;
+  sort?: sortingValues;
+  query: string;
 }

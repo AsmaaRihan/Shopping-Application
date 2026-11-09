@@ -1,14 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  Alert,
-  SafeAreaView,
-} from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
 import Colors from '../../theme/colors';
 import { useNavigation } from '@react-navigation/native';
 import type { AppDispatch, RootState } from '../../store/store';
@@ -18,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import ErrorCard from '../../components/errorCard/errorCard';
 import { getCart, removeFromCart, updateCartQunatity } from '../../service/actions/cartAction';
 import Loader from '../../components/loader/loader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const CartScreen = () => {
   const navigation = useNavigation();

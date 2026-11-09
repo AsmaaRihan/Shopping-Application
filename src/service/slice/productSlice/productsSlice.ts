@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getProducts, getProductsBySearch } from '../../actions/productsAction';
+import { getProducts } from '../../actions/productsAction';
 import { Products } from './product.types';
-import { applyFilters } from './utils';
 
 const initialState: Products = {
   products: [],
@@ -15,11 +14,11 @@ const initialState: Products = {
     hasPreviousPage: false,
   },
   isLoading: true,
-  isError: false,
   isFetchingNextPage: false,
-  filteredProducts: [],
+  isError: false,
   category: '',
-  sort: '',
+  sort: undefined,
+  query: '',
 };
 
 const ProductsSlice = createSlice({
@@ -28,27 +27,24 @@ const ProductsSlice = createSlice({
   reducers: {
     filterByCategory: (state, action) => {
       state.category = action.payload;
-
-      applyFilters(state);
     },
     sortBy: (state, action) => {
       state.sort = action.payload;
-
-      applyFilters(state);
+    },
+    setSearchWord: (state, action) => {
+      state.query = action.payload;
     },
 
     resetFilter: (state) => {
       state.category = '';
-      state.sort = '';
-      state.filteredProducts = undefined;
-
-      applyFilters(state);
+      state.sort = undefined;
+      state.query = '';
     },
   },
   extraReducers: (builder) => {
     //Products
     builder.addCase(getProducts.pending, (state, action) => {
-      if (action.meta.arg !== undefined && action.meta.arg > 0) {
+      if (action.meta.arg.nextPage !== undefined && action.meta.arg.nextPage > 0) {
         state.isFetchingNextPage = true;
       } else {
         state.isLoading = true;
@@ -61,7 +57,7 @@ const ProductsSlice = createSlice({
     });
     builder.addCase(getProducts.fulfilled, (state, action) => {
       state.products =
-        action.meta.arg !== undefined && action.meta.arg > 0
+        action.meta.arg.nextPage !== undefined && action.meta.arg.nextPage > 0
           ? [...state.products, ...action.payload.products]
           : action.payload.products;
       state.categories = action.payload.categories;
@@ -70,22 +66,9 @@ const ProductsSlice = createSlice({
       state.isError = false;
       state.isFetchingNextPage = false;
     });
-
-    //SearchQuery
-    builder.addCase(getProductsBySearch.pending, (state) => {
-      state.isLoading = true;
-    });
-    builder.addCase(getProductsBySearch.rejected, (state) => {
-      state.isError = true;
-      state.isLoading = false;
-    });
-    builder.addCase(getProductsBySearch.fulfilled, (state, action) => {
-      state.filteredProducts = action.payload.products;
-      state.isLoading = false;
-    });
   },
 });
 
-export const { filterByCategory, resetFilter, sortBy } = ProductsSlice.actions;
+export const { filterByCategory, resetFilter, sortBy, setSearchWord } = ProductsSlice.actions;
 
 export default ProductsSlice.reducer;

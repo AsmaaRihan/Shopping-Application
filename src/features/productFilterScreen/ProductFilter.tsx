@@ -1,15 +1,14 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../store/store';
 import Colors from '../../theme/colors';
 import { filterByCategory, resetFilter, sortBy } from '../../service/slice/productSlice/productsSlice';
 import { useNavigation } from '@react-navigation/native';
 import RadioButtons from '../../components/radioButton/radioButton';
-import { FilterOptions, sortOptionsData } from './filters.types';
+import { FilterOptions, getSortLabel, sortMap, sortOptionsData } from './filters.types';
 import Loader from '../../components/loader/loader';
 import { useTranslation } from 'react-i18next';
-import { getProductsCategories } from '../../service/actions/productsAction';
 
 const ProductFilter = () => {
   const navigation = useNavigation();
@@ -22,13 +21,9 @@ const ProductFilter = () => {
 
   const [selectedCategory, setSelectedCategory] = useState(products.category);
 
-  const [selectedSortBy, setSelectedSortBy] = useState(products.sort);
+  const [selectedSortBy, setSelectedSortBy] = useState(getSortLabel(products.sort));
 
   const [activeTab, setActiveTab] = useState<FilterOptions>('category');
-
-  useEffect(() => {
-    dispatch(getProductsCategories());
-  }, [dispatch]);
 
   const renderOptionView = () => {
     if (activeTab === 'category') {
@@ -52,7 +47,7 @@ const ProductFilter = () => {
     }
   };
 
-  if (products.isCategoriesLoading) {
+  if (products.isLoading) {
     return <Loader />;
   }
 
@@ -62,13 +57,16 @@ const ProductFilter = () => {
   };
 
   const onSelectApplyFilter = () => {
+    const sort = sortMap[selectedSortBy];
+
+    if (sort) {
+      dispatch(sortBy(sort));
+    }
+
     if (selectedCategory) {
       dispatch(filterByCategory(selectedCategory));
     }
 
-    if (selectedSortBy) {
-      dispatch(sortBy(selectedSortBy));
-    }
     navigation.goBack();
   };
 
