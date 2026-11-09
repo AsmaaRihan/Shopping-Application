@@ -7,7 +7,7 @@ export const getProductsService = (skip = 0) => {
 };
 
 export const getProductDetailsService = (productId: number) => {
-  const res = api.get(`products/${productId}`);
+  const res = api.get(`/products/${productId}`);
 
   return res;
 };

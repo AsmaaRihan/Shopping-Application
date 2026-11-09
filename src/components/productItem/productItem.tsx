@@ -6,7 +6,7 @@ const ProductListItem = ({ item, onPress }: { item: ProductItem; onPress: () => 
   return (
     <TouchableOpacity testID="product_Item_button" style={styles.button} onPress={onPress}>
       <View style={styles.cardView}>
-        <Image style={styles.categoryImage} source={{ uri: item?.images?.[0] }} resizeMode="contain" />
+        <Image style={styles.categoryImage} source={{ uri: item.thumbnail }} resizeMode="contain" />
         <Text style={styles.cardTextStyle}>{item.title}</Text>
         <Text style={styles.cardTextStyle}>{item.price}</Text>
       </View>

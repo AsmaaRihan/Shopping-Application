@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,11 +13,11 @@ import Colors from '../../theme/colors';
 import { useNavigation } from '@react-navigation/native';
 import type { AppDispatch, RootState } from '../../store/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { formatShoppingCart } from './utils';
 import QuantitySelector from '../../components/quantitySelector/quantitySelector';
 import { useTranslation } from 'react-i18next';
-import { fetchCart, removeFromCart, updateQuantity } from '../../service/slice/cartSlice/cartSlice';
 import ErrorCard from '../../components/errorCard/errorCard';
+import { getCart, removeFromCart, updateCartQunatity } from '../../service/actions/cartAction';
+import Loader from '../../components/loader/loader';
 
 const CartScreen = () => {
   const navigation = useNavigation();
@@ -26,11 +26,11 @@ const CartScreen = () => {
 
   const { t } = useTranslation();
 
-  const shoppingCart = useSelector((state: RootState) => state.cart.shoppingCart);
+  const cartData = useSelector((state: RootState) => state.cart);
 
-  const isCartError = useSelector((state: RootState) => state.cart.isError);
+  const { isError, isLoading, shoppingCart } = cartData;
 
-  const fromatedShoppingItems = shoppingCart ? formatShoppingCart(shoppingCart) : [];
+  const cartItems = shoppingCart?.products ?? [];
 
   const subtotal = shoppingCart?.total ?? 0;
 
@@ -38,10 +38,122 @@ const CartScreen = () => {
 
   const total = subtotal + shipping;
 
-  const formatPrice = (price: number) => `€${price.toFixed(2)}`;
+  const formatPrice = (price: number) => `€${price?.toFixed(2)}`;
 
   const onBack = () => {
     navigation.goBack();
+  };
+
+  const fetchCart = useCallback(async () => {
+    dispatch(getCart());
+  }, [dispatch]);
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
+  const renderContent = () => {
+    if (isLoading) {
+      return <Loader />;
+    }
+
+    if (isError) {
+      return (
+        <ErrorCard
+          title={t('cartError.title')}
+          description={t('cartError.description')}
+          refetch={fetchCart}
+        />
+      );
+    }
+
+    return (
+      <>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          {cartItems.length === 0 ? (
+            <View style={styles.empty}>
+              <Text style={styles.emptyIcon}>🛒</Text>
+              <Text style={styles.emptyTitle}>{t('cart.emptyTitle')}</Text>
+              <Text style={styles.muted}>{t('cart.emptyDescription')}</Text>
+            </View>
+          ) : (
+            cartItems.map((item) => (
+              <View key={item.id} style={styles.product}>
+                {item?.thumbnail && <Image source={{ uri: item.thumbnail }} style={styles.productImage} />}
+                <View style={styles.productInfo}>
+                  <Text style={styles.productName}>{item.title}</Text>
+                  <Text style={styles.price}>{formatPrice(item.price)}</Text>
+
+                  <QuantitySelector
+                    quantity={item.quantity}
+                    min={0}
+                    onChange={(nextQuantity) =>
+                      dispatch(
+                        updateCartQunatity({
+                          id: item.id,
+                          quantity: nextQuantity,
+                        }),
+                      )
+                    }
+                  />
+                </View>
+
+                <TouchableOpacity
+                  testID={`remove-cart-item-${item.id}`}
+                  onPress={() => dispatch(removeFromCart(item.id))}
+                  style={styles.deleteButton}
+                >
+                  <Text style={styles.deleteText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
+
+          <View style={styles.summary}>
+            <View style={styles.summaryHeader}>
+              <Text style={styles.sectionTitle}>{t('cart.orderSummary')}</Text>
+              <Text style={styles.count}>{cartItems.length} items</Text>
+            </View>
+            <View style={styles.summaryRow}>
+              <Text style={styles.muted}>{t('cart.subtotal')}</Text>
+              <Text style={styles.summaryValue}>{formatPrice(subtotal)}</Text>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <Text style={styles.muted}>{t('cart.shipping')}</Text>
+              <Text style={styles.free}>{shipping === 0 ? t('cart.free') : formatPrice(shipping)}</Text>
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.summaryRow}>
+              <Text style={styles.totalLabel}>{t('cart.total')}</Text>
+              <Text style={styles.totalPrice}>{formatPrice(total)}</Text>
+            </View>
+          </View>
+
+          <View style={styles.delivery}>
+            <Text style={styles.deliveryIcon}>🚚</Text>
+            <Text style={styles.deliveryText}>{t('cart.deliveryMessage')}</Text>
+          </View>
+        </ScrollView>
+        <View style={styles.footer}>
+          <View>
+            <Text style={styles.footerLabel}>{t('cart.totalAmount')}</Text>
+            <Text style={styles.footerPrice}>{formatPrice(total)}</Text>
+          </View>
+
+          <TouchableOpacity
+            testID="cart-checkout-button"
+            style={[styles.checkoutButton, cartItems.length === 0 && styles.disabledButton]}
+            disabled={cartItems.length === 0}
+            onPress={() => Alert.alert(t('cart.checkoutTitle'), t('cart.checkoutMessage'))}
+          >
+            <Text style={styles.checkoutText}>{t('cart.checkout')}</Text>
+          </TouchableOpacity>
+        </View>
+      </>
+    );
   };
 
   return (
@@ -52,100 +164,7 @@ const CartScreen = () => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('cart.title')}</Text>
       </View>
-
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {isCartError ? (
-          <ErrorCard
-            errorText={t('cart.updateErrorMessage')}
-            buttonText={t('common.tryAgain')}
-            refetch={() => dispatch(fetchCart())}
-          />
-        ) : null}
-
-        {fromatedShoppingItems.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={styles.emptyIcon}>🛒</Text>
-            <Text style={styles.emptyTitle}>{t('cart.emptyTitle')}</Text>
-            <Text style={styles.muted}>{t('cart.emptyDescription')}</Text>
-          </View>
-        ) : (
-          fromatedShoppingItems.map((item) => (
-            <View key={item.id} style={styles.product}>
-              {item?.image && <Image source={{ uri: item.image }} style={styles.productImage} />}
-              <View style={styles.productInfo}>
-                <Text style={styles.productName}>{item.name}</Text>
-                <Text style={styles.variant}>{item.variant}</Text>
-                <Text style={styles.price}>{formatPrice(item.price)}</Text>
-
-                <QuantitySelector
-                  quantity={item.quantity}
-                  min={0}
-                  onChange={(nextQuantity) =>
-                    dispatch(
-                      updateQuantity({
-                        id: item.id,
-                        quantity: nextQuantity,
-                      }),
-                    )
-                  }
-                />
-              </View>
-
-              <TouchableOpacity
-                testID={`remove-cart-item-${item.id}`}
-                onPress={() => dispatch(removeFromCart(item.id))}
-                style={styles.deleteButton}
-              >
-                <Text style={styles.deleteText}>✕</Text>
-              </TouchableOpacity>
-            </View>
-          ))
-        )}
-
-        <View style={styles.summary}>
-          <View style={styles.summaryHeader}>
-            <Text style={styles.sectionTitle}>{t('cart.orderSummary')}</Text>
-            <Text style={styles.count}>{fromatedShoppingItems.length} items</Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.muted}>{t('cart.subtotal')}</Text>
-            <Text style={styles.summaryValue}>{formatPrice(subtotal)}</Text>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.muted}>{t('cart.shipping')}</Text>
-            <Text style={styles.free}>{shipping === 0 ? t('cart.free') : formatPrice(shipping)}</Text>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.totalLabel}>{t('cart.total')}</Text>
-            <Text style={styles.totalPrice}>{formatPrice(total)}</Text>
-          </View>
-        </View>
-
-        <View style={styles.delivery}>
-          <Text style={styles.deliveryIcon}>🚚</Text>
-          <Text style={styles.deliveryText}>{t('cart.deliveryMessage')}</Text>
-        </View>
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <View>
-          <Text style={styles.footerLabel}>{t('cart.totalAmount')}</Text>
-          <Text style={styles.footerPrice}>{formatPrice(total)}</Text>
-        </View>
-
-        <TouchableOpacity
-          testID="cart-checkout-button"
-          style={[styles.checkoutButton, fromatedShoppingItems.length === 0 && styles.disabledButton]}
-          disabled={fromatedShoppingItems.length === 0}
-          onPress={() => Alert.alert(t('cart.checkoutTitle'), t('cart.checkoutMessage'))}
-        >
-          <Text style={styles.checkoutText}>{t('cart.checkout')}</Text>
-        </TouchableOpacity>
-      </View>
+      {renderContent()}
     </SafeAreaView>
   );
 };
@@ -203,11 +222,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     color: Colors.text,
-  },
-  variant: {
-    color: Colors.textSecondary,
-    fontSize: 12,
-    marginTop: 5,
   },
   price: {
     fontSize: 16,

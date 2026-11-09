@@ -1,4 +1,4 @@
-import type { CartItem } from './cart.types';
+import type { CartItem } from './cartSlice.types';
 
 export const calculateCartTotals = (products: CartItem[]) => ({
   total: Number(products.reduce((sum, product) => sum + product.price * product.quantity, 0).toFixed(2)),

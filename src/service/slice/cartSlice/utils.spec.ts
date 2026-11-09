@@ -1,5 +1,5 @@
 import { calculateCartTotals } from './utils';
-import type { CartItem } from './cart.types';
+import type { CartItem } from './cartSlice.types';
 
 const products: CartItem[] = [
   {

@@ -1,5 +1,5 @@
 const config = {
-  URL: 'https://dummyjson.com/',
+  URL: 'http://localhost:5000/api',
   TIMEOUT: 5000,
 };
 

@@ -9,7 +9,7 @@ import Colors from '../../theme/colors';
 import AddToCartModal from '../../components/addToCartModel/addToCartModal';
 import ErrorCard from '../../components/errorCard/errorCard';
 import { useTranslation } from 'react-i18next';
-import { addToCart } from '../../service/slice/cartSlice/cartSlice';
+import { addToCart } from '../../service/actions/cartAction';
 
 type ProductDetailsProps = {
   route: {
@@ -30,6 +30,8 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
 
   const isCartError = useSelector((state: RootState) => state.cart.isError);
 
+  const isCartLoading = useSelector((state: RootState) => state.cart.isLoading);
+
   const { isError, isLoading, productDetails: product } = productData;
 
   const fetchProductDetails = useCallback(
@@ -45,6 +47,8 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
 
   const [showCartActions, setShowCartActions] = useState(false);
 
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+
   const availableStock = product?.stock ?? 0;
 
   const handleAddToCart = () => {
@@ -59,15 +63,23 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
     dispatch(
       addToCart({
         id: product.id,
-        title: product.title,
-        price: product.price,
-        thumbnail: product.thumbnail,
         quantity,
       }),
     );
 
-    setShowCartActions(true);
+    setIsAddingToCart(true);
   };
+
+  // The thunk result is read from the cart slice, so wait for the request to settle.
+  useEffect(() => {
+    if (!isAddingToCart || isCartLoading) return;
+
+    setIsAddingToCart(false);
+
+    if (!isCartError) {
+      setShowCartActions(true);
+    }
+  }, [isAddingToCart, isCartLoading, isCartError]);
 
   const toggleModal = () => setShowCartActions((previous) => !previous);
 
@@ -77,8 +89,8 @@ const ProductDetails = ({ route }: ProductDetailsProps) => {
   if (isError || !product) {
     return (
       <ErrorCard
-        errorText={t('product.loadError')}
-        buttonText={t('common.tryAgain')}
+        title={t('product.loadError')}
+        description={t('common.tryAgain')}
         refetch={fetchProductDetails}
       />
     );

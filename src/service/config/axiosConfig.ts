@@ -11,7 +11,7 @@ const instance = axios.create({
   },
 });
 
-instance.interceptors.response.use(undefined, async error => {
+instance.interceptors.response.use(undefined, async (error) => {
   if (error.response.status === 401) {
     Alert.alert(i18n.t('errors.unauthorized'));
   } else if (error.response.status === 404) {

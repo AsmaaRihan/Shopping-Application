@@ -27,7 +27,7 @@ const ProductDetailsSlice = createSlice({
       state.isLoading = false;
     });
     builder.addCase(getProductDetails.fulfilled, (state, action) => {
-      state.productDetails = action.payload;
+      state.productDetails = action.payload.product;
       state.isLoading = false;
       state.isError = false;
     });
