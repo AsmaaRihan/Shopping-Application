@@ -2,7 +2,6 @@ import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { fireEvent, render } from '@testing-library/react-native';
 import ProductFilter from './productFilter';
-import { getSortedProducts } from '../../service/actions/productsAction';
 import { filterByCategory } from '../../service/slice/productSlice/productsSlice';
 
 const mockGoBack = jest.fn();
@@ -51,9 +50,8 @@ jest.mock('../../components/radioButton/radioButton', () => {
     );
 });
 
-jest.mock('../../service/actions/productsAction', () => ({
-  getProductsCategories: jest.fn(() => 'getProductsCategories'),
-  getSortedProducts: jest.fn(() => 'getSortedProducts'),
+jest.mock('../../service/actions/categoriesApi', () => ({
+  getCategories: jest.fn(() => 'getCategories'),
 }));
 
 jest.mock('../../service/slice/productSlice/productsSlice', () => ({
@@ -64,7 +62,15 @@ jest.mock('../../service/slice/productSlice/productsSlice', () => ({
 
 jest.mock('react-redux', () => ({
   useDispatch: () => mockDispatch,
-  useSelector: (selector: (state: unknown) => unknown) => selector({ products: mockProducts }),
+  useSelector: (selector: (state: unknown) => unknown) =>
+    selector({
+      products: mockProducts,
+      categories: {
+        categories: mockProducts.categories,
+        isLoading: mockProducts.isCategoriesLoading,
+        isError: mockProducts.isCategoriesError,
+      },
+    }),
 }));
 
 jest.mock('@react-navigation/native', () => ({
@@ -100,10 +106,10 @@ describe('ProductFilterScreen', () => {
   it('renders the loader while the categories are loading', async () => {
     mockProducts = { ...mockProducts, isCategoriesLoading: true };
 
-    const { queryByTestId } = await render(<ProductFilter />);
+    const { getByTestId, queryByTestId } = await render(<ProductFilter />);
 
+    expect(getByTestId('loader')).toBeTruthy();
     expect(queryByTestId('select_category_filter_button')).toBeNull();
-    expect(queryByTestId('radioButtons')).toBeNull();
   });
 
   it('renders filter actions and resets the filter', async () => {
@@ -174,7 +180,6 @@ describe('ProductFilterScreen', () => {
 
     await fireEvent.press(getByTestId('apply_filter_button'));
 
-    expect(getSortedProducts).not.toHaveBeenCalled();
     expect(mockGoBack).toHaveBeenCalled();
   });
 });
