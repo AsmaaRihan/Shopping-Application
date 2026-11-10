@@ -1,14 +1,16 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../store/store';
 import Colors from '../../theme/colors';
 import { filterByCategory, resetFilter, sortBy } from '../../service/slice/productSlice/productsSlice';
 import { useNavigation } from '@react-navigation/native';
-import RadioButtons from '../../components/radioButton/radioButton';
 import { FilterOptions, getSortLabel, sortMap, sortOptionsData } from './filters.types';
 import Loader from '../../components/loader/loader';
 import { useTranslation } from 'react-i18next';
+import { getCategories } from '../../service/actions/categoriesApi';
+import RadioButtons from '../../components/radioButton/radioButton';
+import ErrorCard from '../../components/errorCard/errorCard';
 
 const ProductFilter = () => {
   const navigation = useNavigation();
@@ -19,23 +21,36 @@ const ProductFilter = () => {
 
   const products = useSelector((state: RootState) => state.products);
 
+  const categories = useSelector((state: RootState) => state.categories.categories);
+
+  const isError = useSelector((state: RootState) => state.categories.isError);
+
+  const isLoading = useSelector((state: RootState) => state.categories.isLoading);
+
   const [selectedCategory, setSelectedCategory] = useState(products.category);
 
   const [selectedSortBy, setSelectedSortBy] = useState(getSortLabel(products.sort));
 
   const [activeTab, setActiveTab] = useState<FilterOptions>('category');
 
+  const fetchCategories = useCallback(() => {
+    dispatch(getCategories());
+  }, [dispatch]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
   const renderOptionView = () => {
     if (activeTab === 'category') {
       return (
         <RadioButtons
-          options={products.categories}
+          options={categories}
           selectedOption={selectedCategory}
           setSelectedOption={setSelectedCategory}
         />
       );
     }
-
     if (activeTab === 'sort') {
       return (
         <RadioButtons
@@ -47,8 +62,12 @@ const ProductFilter = () => {
     }
   };
 
-  if (products.isLoading) {
+  if (isLoading) {
     return <Loader />;
+  }
+
+  if (isError) {
+    return <ErrorCard title={'Something went wrong'} description="" refetch={fetchCategories} />;
   }
 
   const onSelectResetFilter = () => {

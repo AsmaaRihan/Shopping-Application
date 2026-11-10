@@ -29,15 +29,3 @@ export const getProductDetailsService = (productId: number) => {
 
   return res;
 };
-
-export const getSortedProductsService = (value: string) => {
-  const res = api.get(`products?${value}`);
-
-  return res;
-};
-
-export const getProductsCategoriesService = () => {
-  const res = api.get('products/categories');
-
-  return res;
-};

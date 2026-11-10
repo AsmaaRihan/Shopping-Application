@@ -87,7 +87,7 @@ const HomepageScreen = () => {
     if (isError) {
       return (
         <ErrorCard
-          refetch={() => fetchProducts(0)}
+          refetch={() => fetchProducts()}
           title={t('productsError.title')}
           description={t('productsError.description')}
         />
@@ -100,6 +100,7 @@ const HomepageScreen = () => {
 
     return (
       <FlatList
+        testID="products-list"
         style={styles.list}
         data={products}
         contentContainerStyle={styles.listContent}
